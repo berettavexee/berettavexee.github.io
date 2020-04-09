@@ -98,3 +98,5 @@ C'est assez simple d'utilisation, il vous suffit de déposer vos fichiers `rider
  - Uber conserve un historique complete des trajets effectués.
  - Certaines données fournit par l'utilisateurs comme la notation des chauffeurs ou des trajets n'ont pas été transmises. 
 
+# remerciements 
+- Raphael Rigo pour ses conseils et sa relecture : https://syscall.eu/blog/
