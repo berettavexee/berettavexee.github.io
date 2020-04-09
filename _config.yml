@@ -1,0 +1,22 @@
+# Setup
+title:               'Beretta Vexée Blog'
+tagline:             ''
+description:         'A Blog about Python, maps and bicycles <a href="https://twitter.com/BerettaVexee" target="_blank">@BerettaVexee</a>.'
+url:                 'https://berettavexee.github.io/'
+baseurl:             ''
+paginate:            10
+permalink:           pretty
+
+# About/contact
+author:
+  name:              guiral Lacotte
+  url:               https://twitter.com/berettavexee
+  email:             first_name.last_name@gmail.com
+
+# Gems
+plugins:
+  - jekyll-paginate
+
+# Custom vars
+version:             1.1.0
+google_analytics_id: #UA-XXXX-Y
