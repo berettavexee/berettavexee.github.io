@@ -12,10 +12,8 @@ title: Home
       </a>
     </h1>
 
-    <span class="post-date">{{ post.date | date_to_string }}</span>
-    {% if page.author %}
-      <span class="post-author">{{page.author}}</span>
-    {% endif %}
+    <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}{% if post.author %} - {{post.author}}{% endif %}</span>
+    
 
     {{ post.content }}
   </div>

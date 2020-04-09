@@ -1,11 +1,12 @@
 ﻿---
 layout: post
-title: "Uber et la GDPR!"
+title: "Uber et la GDPR"
 date: 2020-04-01
 author: "guiral Lacotte"
 language: french 
 tags: GDPR Python leaflet 
 ---
+![Smartphone](/assets/img/kon-karampelas-9BbkkdurAnU-unsplash.jpg)
 En ces temps de confinement Covid-19, j'ai enfin prit le temps d'effectuer quelques projet que j'avais dans mes calpins depuis un certain temps. L'un d'eux etait d'effectuer un maximum de demandes d'accès à mes données personnels via la [GDPR](https://fr.wikipedia.org/wiki/R%C3%A8glement_g%C3%A9n%C3%A9ral_sur_la_protection_des_donn%C3%A9es) et d'étudier les données qui m'étaient envoyés. Cela afin d'évaluer la mise en oeuvre de la GDPR par les différentes entreprises et plateformes. De détailler les modalités d'accès, car j'en connais quelque uns d'entre vous pour qui il est plus de facilités a écrire une requête vers une [API](https://en.wikipedia.org/wiki/Application_programming_interface) que d'écrire une lettre manuscrite avec photocopie de pièce d'identité vers la boite postale du service juridique (regard accusateur en direction du système bancaire et les opérateurs télécoms français). Mais aussi de mieux comprendre, le fonctionnement et le modèle économique de ces plateformes. Et enfin, avoir des données réels afin de m'exercer à la visualisation de données de géolocalisation avec [Python](https://www.python.org/), [Folium](https://python-visualization.github.io/folium/) et [Leaflet](https://leafletjs.com/).
 
 Le but est de faciliter le travail pour des néophytes et d'encourager les utilisateurs a exercer leurs droits d'accès (un droit que l'on utilise pas c'est un droit qui meure). Il n'est pas prévue de se lancer dans des analyses complexes (reverse d'application mobile ou d'API, dés-anonymisation). Je n'ai malheureusement ni le temps, ni les compétence requise pour le faire.
@@ -99,4 +100,4 @@ C'est assez simple d'utilisation, il vous suffit de déposer vos fichiers `rider
  - Certaines données fournit par l'utilisateurs comme la notation des chauffeurs ou des trajets n'ont pas été transmises. 
 
 # remerciements 
-- Raphael Rigo pour ses conseils et sa relecture : https://syscall.eu/blog/
+- [Raphael Rigo](https://syscall.eu/blog/) pour ses conseils et sa relecture.
