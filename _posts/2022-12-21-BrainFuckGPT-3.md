@@ -233,7 +233,6 @@ C'est là que les choses deviennent intéressantes. Le commentaire introductif e
 	        elif instruction == ".":
 
 
-
 Au final, j'ai obtenu un code qui fonctionne, mais qui ne passe que 6 tests sur 15. Ce qui n'est pas trop mal si l'on considère que je n'ai écrit aucune ligne de code moi-même. J'ai refait l'exercice en anglais. Cette fois-ci GPT-3 s'en sort beaucoup mieux. Le temps de traitement était plus court, ce qui a permis de réduire les problèmes de troncature des réponses (probablement dus à un délai d'expiration) et il a mieux intégré les remarques. Le code suivant a obtenu un score de 8 sur 15 lors du test initial.
 
 	def solution(code, user_input):
@@ -296,6 +295,8 @@ Au final, j'ai obtenu un code qui fonctionne, mais qui ne passe que 6 tests sur 
 	    print('Output :', output)
 	    return output
 
+## Détecter les IA avec Python 3.10 
+
 GPT-3 ne connait que python jusqu'à la version 3.8, si on lui demande d'utiliser la fonction match/case introduite dans python 3.10 il perd les pédales et nous raccompte n'importe quoi.
 
 > Q: Pourrais-tu utiliser match case à la place de if elif ?
@@ -331,6 +332,8 @@ GPT-3 ne connait que python jusqu'à la version 3.8, si on lui demande d'utilise
 > Dans cette version de la fonction, chaque instruction BrainFuck est associée à une fonction lambda qui effectue l'opération correspondante. Lorsque l'instruction est exécutée, la fonction lambda est appelée en utilisant la méthode get du dictionnaire 'operations'.
 
 Utiliser un dictionnaire de fonctions pourrait être une solution élégante pour résoudre ce problème, mais le code part complètement en vrille et définit des lambda avec des setattr avec deux arguments au lieu de trois. Ensuite, il attend un EOF sur un tableau. Si vous voulez casser GPT-3, demandez-lui de coder en Python 3.10.
+
+## Conclusion 
 
 En conclusion, est-ce que GPT-3 permet de tricher lors d'un entretien en temps limité et est-ce que le NoCode et les intelligences artificielles vont mettre les développeurs au chômage? La réponse est non. Tout d'abord, dans sa version gratuite, GPT-3 est assez lent à répondre. J'ai mis moins de temps à trouver un dépôt GitHub en utilisant Google qu'à attendre la réponse de GPT-3 lorsque j'ai fait la demande en français. Sans une compréhension fine des problémes les résultats fournis sont inexploitables. Il est difficile et inefficace de lui faire prendre en compte des détails d'implémentation tels que le bouclage mémoire ou certains comportements (débordement d'entier) lorsqu'on l'interroge en anglais, et presque impossible lorsqu'on l'interroge en français. Il sort n'importe quoi dès qu'on lui demande de coder dans un langage qui sort un peu de sa base d'apprentissage. Il pourrait être intéressant de comparer ses performances en fonction des langages et de leur popularité. Les résultats restent tout de même beaucoup plus impressionnants que la majorité de outils "NoCode" qui tiennent plus du légo, programmation visuel.
 
