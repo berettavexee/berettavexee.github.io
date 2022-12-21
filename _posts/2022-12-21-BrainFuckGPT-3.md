@@ -6,6 +6,7 @@ author: "guiral Lacotte"
 language: french 
 tags: Python GPT-3 brainfuck IA
 ---
+![tablettes cunéiformes assyriennes](/assets/img/cuneiform-tablet.jpg)
 
 # GPTchat peut-il vous aider à passer un test python
 
@@ -211,8 +212,8 @@ C'est là que les choses deviennent intéressantes. Le commentaire introductif e
 	            # Décrémenter la valeur de la cellule de mémoire pointée
 	            memory[memory_ptr] -= 1
 
-* Requête: Les valeurs stockées en mémoires sont comprises entre 0 et 255.*
-* Réponse:Pour s'assurer que les valeurs stockées en mémoire restent comprises entre 0 et 255, vous pouvez utiliser l'opérateur modulo % dans les opérations d'incrémentation et de décrémentation des cellules de mémoire. Cela permettra de limiter les valeurs des cellules de mémoire à l'intervalle [0, 255]. Voici comment la fonction interpret_brainFuck pourrait être modifiée pour limiter les valeurs des cellules de mémoire à l'intervalle [0, 255]:*
+*Requête: Les valeurs stockées en mémoires sont comprises entre 0 et 255.*
+*Réponse:Pour s'assurer que les valeurs stockées en mémoire restent comprises entre 0 et 255, vous pouvez utiliser l'opérateur modulo % dans les opérations d'incrémentation et de décrémentation des cellules de mémoire. Cela permettra de limiter les valeurs des cellules de mémoire à l'intervalle [0, 255]. Voici comment la fonction interpret_brainFuck pourrait être modifiée pour limiter les valeurs des cellules de mémoire à l'intervalle [0, 255]:*
 
 	def interpret_brainFuck(brainFuck_code, user_input):
 			...
