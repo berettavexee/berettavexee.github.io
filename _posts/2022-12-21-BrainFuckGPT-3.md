@@ -14,6 +14,8 @@ Je perdais mon temps sur Twitter lorsque je suis tombé sur ce [tweet](https://t
 
 Après quelques recherches sur GitHub, j'ai trouvé un interpréteur BF en Python 3 déjà fonctionnel. Je l'ai copié-collé sur la page coderpad.io et j'ai effectué quelques modifications pour utiliser les bons tampons. Lorsque j'ai lancé l'évaluation, j'ai obtenu un score modeste de 6 sur 15. Après une vingtaine de minutes de lecture de la documentation et quelques corrections, j'ai obtenu 13 sur 15. Les tests 11 et 12 me résistaient encore. Je suis retourné travailler et j'ai repris le problème en fin de journée. En lisant un peu le code BF du test, j'ai découvert qu'il générait un débordement d'entier (il faut simuler un integer underflow alors que python renvoie un nombre négatif) et que c'était probablement là que venait le problème. Après quelques modifications, j'ai finalement obtenu le score maximal de 15 sur 15.
 
+![evaluation 15/15](/assets/img/BrainFuck-GPT3-eval1515)
+
 Je poste donc fièrement mon résultat sur Twitter. Parmi les nombreuses réponses au tweet original, l'une d'elles attire mon attention.
 
 >"NUL pour un entretien
