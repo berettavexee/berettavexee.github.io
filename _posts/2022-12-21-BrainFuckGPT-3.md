@@ -12,11 +12,10 @@ tags: Python GPT-3 brainfuck IA
 
 Je perdais mon temps sur Twitter lorsque je suis tombé sur ce [tweet](https://twitter.com/MathisHammel/status/1605131425501569029) qui proposait de passer un test en Python qui serait représentatif de ce qui pourrait être demandé lors d'un entretien d'embauche. L'exercice consistait à implémenter un interpréteur [BrainFuck](https://en.wikipedia.org/wiki/BrainFuck), un langage de programmation étrange et volontairement incompréhensible. L'exercice était interessant, je n'avais jamais codé d'interpreteur j'ai décidé de relever le défi.
 
-Après quelques recherches sur GitHub, j'ai trouvé un interpréteur BF en Python 3 déjà fonctionnel. Je l'ai copié-collé sur la page coderpad.io et j'ai effectué quelques modifications pour utiliser les bons tampons. Lorsque j'ai lancé l'évaluation, j'ai obtenu un score modeste de 6 sur 15. Après une vingtaine de minutes de lecture de la documentation et quelques corrections, j'ai obtenu 13 sur 15. Les tests 11 et 12 me résistaient encore. Je suis retourné travailler et j'ai repris le problème en fin de journée. En lisant un peu le code BF du test, j'ai découvert qu'il générait un débordement d'entier (il faut simuler un integer underflow alors que python renvoie un nombre négatif) et que c'était probablement là que venait le problème. Après quelques modifications, j'ai finalement obtenu le score maximal de 15 sur 15.
-
+Après quelques recherches sur GitHub, j'ai trouvé un interpréteur BF en Python 3 déjà fonctionnel. Je l'ai copié-collé sur la page coderpad.io et j'ai effectué quelques modifications pour utiliser les bons tampons. Lorsque j'ai lancé l'évaluation, j'ai obtenu un score modeste de 6 sur 15. J'ai passé un peu plus de temps sur le problème en fin de journée et j'ai obtenue le 15 sur 15. Fin de l'histoire tout le monde s'en fout.
 ![evaluation 15/15](/assets/img/BrainFuck-GPT3-eval1515.png)
 
-Je poste donc fièrement mon résultat sur Twitter. Parmi les nombreuses réponses au tweet original, l'une d'elles attire mon attention.
+Les choses interessante arrivent après, je poste donc fièrement mon résultat sur Twitter. Parmi les nombreuses réponses au tweet original, l'une d'elles attire mon attention.
 
 >"NUL pour un entretien
 >
@@ -26,7 +25,7 @@ Je poste donc fièrement mon résultat sur Twitter. Parmi les nombreuses répons
 >Ensuite tu demandes au dev plusieurs centaines de lignes alors qu'un dev ça code 10 lignes par jour
 >Puis demander un algo étudient à un pro 😑" --*@dededede4*
 
-Mes précédents tests ont démontré qu'il était déjà tout à fait possible de tricher en utilisant des outils comme GitHub Copilot, mais cela nécessite des connaissances en programmation. Mon idée et défi consiste à essayer de produire une solution sans écrire moi-même une seule ligne de code, voire sans apporter aucune modification. Le NoCode est à la mode, c'est l'occasion de tester.
+Lors de mes précédents tests j'ai pue vérifier qu'il était déjà tout à fait possible de tricher en utilisant des outils comme GitHub Copilot, mais cela nécessite des connaissances en programmation. Mon idée et défi consiste à essayer de produire une solution sans écrire moi-même une seule ligne de code, voire sans apporter aucune modification. Le NoCode est à la mode, c'est l'occasion de tester.
 
 Voici les règles du défi:
 1. Le résultat doit être obtenu à partir d'une seule demande à GPT-3/ChatGPT.
@@ -181,7 +180,7 @@ Cependant, il y a quelques points à améliorer:
 - La mémoire n'est pas implémentée de manière cyclique (elle ne retourne pas à zéro une fois qu'elle atteint la fin de la liste).
 - Les entrées ne sont pas traitées comme des entiers, mais comme des chaînes de caractères."
 
-Après avoir effectué plusieurs tests, j'ai constaté que dans sa version d'essai gratuite, GPT-3 tronquait les réponses qui étaient trop longues lorsque le service était surchargé, ce qui expliquait l'absence de retour de la fonction plutôt qu'un oubli réel de la part du système.
+Après avoir effectué plusieurs tests, j'ai constaté que dans sa version d'essai gratuite, GPT-3 tronquait les réponses qui étaient trop longues lorsque le service était surchargé, ce qui expliquait l'absence de retour de la fonction plutôt qu'un oubli réel de la part du système. **On abandonne le code doit être généré en une seul fois.**
 
 *Requete: la fonction doit retourner la sortie.*
 
@@ -336,4 +335,6 @@ Utiliser un dictionnaire de fonctions pourrait être une solution élégante pou
 ## Conclusion 
 
 En conclusion, est-ce que GPT-3 permet de tricher lors d'un entretien en temps limité et est-ce que le NoCode et les intelligences artificielles vont mettre les développeurs au chômage? La réponse est non. Tout d'abord, dans sa version gratuite, GPT-3 est assez lent à répondre. J'ai mis moins de temps à trouver un dépôt GitHub en utilisant Google qu'à attendre la réponse de GPT-3 lorsque j'ai fait la demande en français. Sans une compréhension fine des problémes les résultats fournis sont inexploitables. Il est difficile et inefficace de lui faire prendre en compte des détails d'implémentation tels que le bouclage mémoire ou certains comportements (débordement d'entier) lorsqu'on l'interroge en anglais, et presque impossible lorsqu'on l'interroge en français. Il sort n'importe quoi dès qu'on lui demande de coder dans un langage qui sort un peu de sa base d'apprentissage. Il pourrait être intéressant de comparer ses performances en fonction des langages et de leur popularité. Les résultats restent tout de même beaucoup plus impressionnants que la majorité de outils "NoCode" qui tiennent plus du légo, programmation visuel.
+
+**TL;DR : GPT-3 peut sortir du code identique à une bonne recherche google sur github, il peut commenter le code et le traduire, voir faire quelques modifications mineurs comme les noms de variables. Mais il est très difficile de lui faire faire plus de chose et c'est probablement plus lent que de le faire soit même. Si vous savez coder Github Copilot fait mieux.**
 
