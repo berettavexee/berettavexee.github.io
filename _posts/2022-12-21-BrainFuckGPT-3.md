@@ -1,14 +1,12 @@
 ---
 layout: post
-title: "GPTchat peut-il vous aider à passer un test python"
+title: "GPTchat peut-il vous aider à passer un test python ?"
 date: 2022-12-21
 author: "guiral Lacotte"
 language: french 
 tags: Python GPT-3 brainfuck IA
 ---
 ![tablettes cunéiformes assyriennes](/assets/img/cuneiform-tablet.jpg)
-
-# GPTchat peut-il vous aider à passer un test python
 
 >"Vous rêvez de décrocher votre prochain emploi dans le monde de la technologie, mais vous êtes stressé à l'idée de devoir passer un test de programmation en Python? Ne paniquez pas! Dans cet article, je vous raconte comment j'ai utilisé GPT-3, l'un des modèles de traitement du langage naturel les plus avancés au monde, pour réussir haut la main un test de programmation en Python lors d'un entretien d'embauche. Suivez mes conseils et vous serez prêt à affronter n'importe quel test de programmation en toute confiance." -- *ChatGPT*
 
