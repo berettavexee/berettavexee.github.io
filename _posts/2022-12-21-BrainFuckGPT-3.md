@@ -37,77 +37,77 @@ Voici les règles du défi:
 *Requette:Je voudrais un interpreteur brainfuck en python 3.*
 
 *Résultat:*
-```Python 
-	#!/usr/bin/env python3
-	import sys
+```python 
+#!/usr/bin/env python3
+import sys
 
-	def run_bf(bf_code, input_str):
-	    input_chars = list(input_str)
-	    input_len = len(input_chars)
-	    input_index = 0
+def run_bf(bf_code, input_str):
+    input_chars = list(input_str)
+    input_len = len(input_chars)
+    input_index = 0
 
-	    # Initialise la mémoire à zéro
-	    memory = [0]
-	    pointer = 0
+    # Initialise la mémoire à zéro
+    memory = [0]
+    pointer = 0
 
-	    # Initialise la sortie à une chaîne vide
-	    output = ""
+    # Initialise la sortie à une chaîne vide
+    output = ""
 
-	    # Itère sur chaque caractère du code Brainfuck
-	    for c in bf_code:
-	        if c == ">":
-	            # Incrémente le pointeur de mémoire
-	            pointer += 1
-	            if pointer == len(memory):
-	                memory.append(0)
-	        elif c == "<":
-	            # Décrémente le pointeur de mémoire
-	            pointer -= 1
-	        elif c == "+":
-	            # Incrémente la valeur à l'emplacement de mémoire actuel
-	            memory[pointer] = (memory[pointer] + 1) % 256
-	        elif c == "-":
-	            # Décrémente la valeur à l'emplacement de mémoire actuel
-	            memory[pointer] = (memory[pointer] - 1) % 256
-	        elif c == ".":
-	            # Ajoute la valeur de l'emplacement de mémoire actuel à la sortie
-	            output += chr(memory[pointer])
-	        elif c == ",":
-	            # Lit un caractère de l'entrée et le stocke à l'emplacement de mémoire actuel
-	            if input_index < input_len:
-	                memory[pointer] = ord(input_chars[input_index])
-	                input_index += 1
-	            else:
-	                memory[pointer] = 0
-	        elif c == "[":
-	            # Si la valeur de l'emplacement de mémoire actuel est nulle, saute au caractère de fermeture de la boucle
-	            if memory[pointer] == 0:
-	                loop_count = 1
-	                while loop_count > 0:
-	                    c = bf_code[i]
-	                    i += 1
-	                    if c == "[":
-	                        loop_count += 1
-	                    elif c == "]":
-	                        loop_count -= 1
-	        elif c == "]":
-	            # Si la valeur de l'emplacement de mémoire actuel n'est pas nulle, saute au caractère d'ouverture de la boucle
-	            if memory[pointer] != 0:
-	                loop_count = 1
-	                while loop_count > 0:
-	                    c = bf_code[i]
-	                    i -= 1
-	                    if c == "[":
-	                        loop_count -= 1
-	                    elif c == "]":
-	                        loop_count += 1
+    # Itère sur chaque caractère du code Brainfuck
+    for c in bf_code:
+        if c == ">":
+            # Incrémente le pointeur de mémoire
+            pointer += 1
+            if pointer == len(memory):
+                memory.append(0)
+        elif c == "<":
+            # Décrémente le pointeur de mémoire
+            pointer -= 1
+        elif c == "+":
+            # Incrémente la valeur à l'emplacement de mémoire actuel
+            memory[pointer] = (memory[pointer] + 1) % 256
+        elif c == "-":
+            # Décrémente la valeur à l'emplacement de mémoire actuel
+            memory[pointer] = (memory[pointer] - 1) % 256
+        elif c == ".":
+            # Ajoute la valeur de l'emplacement de mémoire actuel à la sortie
+            output += chr(memory[pointer])
+        elif c == ",":
+            # Lit un caractère de l'entrée et le stocke à l'emplacement de mémoire actuel
+            if input_index < input_len:
+                memory[pointer] = ord(input_chars[input_index])
+                input_index += 1
+            else:
+                memory[pointer] = 0
+        elif c == "[":
+            # Si la valeur de l'emplacement de mémoire actuel est nulle, saute au caractère de fermeture de la boucle
+            if memory[pointer] == 0:
+                loop_count = 1
+                while loop_count > 0:
+                    c = bf_code[i]
+                    i += 1
+                    if c == "[":
+                        loop_count += 1
+                    elif c == "]":
+                        loop_count -= 1
+        elif c == "]":
+            # Si la valeur de l'emplacement de mémoire actuel n'est pas nulle, saute au caractère d'ouverture de la boucle
+            if memory[pointer] != 0:
+                loop_count = 1
+                while loop_count > 0:
+                    c = bf_code[i]
+                    i -= 1
+                    if c == "[":
+                        loop_count -= 1
+                    elif c == "]":
+                        loop_count += 1
 
-	    return output
+    return output
 
-	def main():
-	    # Vérifie qu'un fichier a été passé en argument
-	    if len(sys.argv) != 2:
-	        print("Utilisation: bf.py fichier.bf")
+def main():
+    # Vérifie qu'un fichier a été passé en argument
+    if len(sys.argv) != 2:
+        print("Utilisation: bf.py fichier.bf")
 ```
 
 GPT-3 nous donne un interpréteur BF fonctionnel qui semble avoir été copié-collé depuis un dépôt quelconque, mais c'est un bon début.
@@ -119,57 +119,57 @@ GPT-3 nous donne un interpréteur BF fonctionnel qui semble avoir été copié-c
 *Résultat:*
 
 >Voici comment vous pourriez écrire une fonction en Python 3 qui interprète du code Brainfuck. Cette fonction prend en entrée une chaîne de caractères représentant le code Brainfuck et une chaîne de caractères représentant les entrées utilisateur, et retourne une chaîne de caractères représentant la sortie générée par le code Brainfuck:
-```Python 
-	def interpret_brainfuck(brainfuck_code, user_input):
-	    # Créer une liste de 30000 bytes non signés pour la mémoire
-	    memory = [0] * 30000
+```python 
+def interpret_brainfuck(brainfuck_code, user_input):
+    # Créer une liste de 30000 bytes non signés pour la mémoire
+    memory = [0] * 30000
 
-	    # Initialiser les variables d'instruction et de pointeur de mémoire
-	    instruction_ptr = 0
-	    memory_ptr = 0
+    # Initialiser les variables d'instruction et de pointeur de mémoire
+    instruction_ptr = 0
+    memory_ptr = 0
 
-	    # Initialiser la sortie à une chaîne vide
-	    output = ""
+    # Initialiser la sortie à une chaîne vide
+    output = ""
 
-	    # Initialiser l'index de l'entrée utilisateur à 0
-	    input_idx = 0
+    # Initialiser l'index de l'entrée utilisateur à 0
+    input_idx = 0
 
-	    # Répéter jusqu'à ce que l'instruction pointée soit "EOF" (fin de fichier)
-	    while brainFuck_code[instruction_ptr] != "EOF":
-	        # Récupérer l'instruction actuelle
-	        instruction = brainFuck_code[instruction_ptr]
+    # Répéter jusqu'à ce que l'instruction pointée soit "EOF" (fin de fichier)
+    while brainFuck_code[instruction_ptr] != "EOF":
+        # Récupérer l'instruction actuelle
+        instruction = brainFuck_code[instruction_ptr]
 
-	        # Exécuter l'instruction en fonction de sa valeur
-	        if instruction == ">":
-	            # Incrémenter le pointeur de mémoire
-	            memory_ptr += 1
-	        elif instruction == "<":
-	            # Décrémenter le pointeur de mémoire
-	            memory_ptr -= 1
-	        elif instruction == "+":
-	            # Incrémenter la valeur de la cellule de mémoire pointée
-	            memory[memory_ptr] += 1
-	        elif instruction == "-":
-	            # Décrémenter la valeur de la cellule de mémoire pointée
-	            memory[memory_ptr] -= 1
-	        elif instruction == ".":
-	            # Ajouter la valeur de la cellule de mémoire pointée à la sortie
-	            output += chr(memory[memory_ptr])
-	        elif instruction == ",":
-	            # Lire l'entrée utilisateur et affecter sa valeur à la cellule de mémoire pointée
-	            memory[memory_ptr] = ord(user_input[input_idx])
-	            input_idx += 1
-	        elif instruction == "[":
-	            # Si la valeur de la cellule de mémoire pointée est 0, sauter à la correspondance de "]"
-	            if memory[memory_ptr] == 0:
-	                instruction_ptr = brainFuck_code.index("]", instruction_ptr)
-	        elif instruction == "]":
-	            # Si la valeur de la cellule de mémoire pointée n'est pas 0, retourner à la correspondance de "["
-	            if memory[memory_ptr] != 0:
-	                instruction_ptr = brainFuck_code.index("[", 0, instruction_ptr)
+        # Exécuter l'instruction en fonction de sa valeur
+        if instruction == ">":
+            # Incrémenter le pointeur de mémoire
+            memory_ptr += 1
+        elif instruction == "<":
+            # Décrémenter le pointeur de mémoire
+            memory_ptr -= 1
+        elif instruction == "+":
+            # Incrémenter la valeur de la cellule de mémoire pointée
+            memory[memory_ptr] += 1
+        elif instruction == "-":
+            # Décrémenter la valeur de la cellule de mémoire pointée
+            memory[memory_ptr] -= 1
+        elif instruction == ".":
+            # Ajouter la valeur de la cellule de mémoire pointée à la sortie
+            output += chr(memory[memory_ptr])
+        elif instruction == ",":
+            # Lire l'entrée utilisateur et affecter sa valeur à la cellule de mémoire pointée
+            memory[memory_ptr] = ord(user_input[input_idx])
+            input_idx += 1
+        elif instruction == "[":
+            # Si la valeur de la cellule de mémoire pointée est 0, sauter à la correspondance de "]"
+            if memory[memory_ptr] == 0:
+                instruction_ptr = brainFuck_code.index("]", instruction_ptr)
+        elif instruction == "]":
+            # Si la valeur de la cellule de mémoire pointée n'est pas 0, retourner à la correspondance de "["
+            if memory[memory_ptr] != 0:
+                instruction_ptr = brainFuck_code.index("[", 0, instruction_ptr)
 
-	        # Passer à l'instruction suivante
-	        instruction_ptr += 1
+        # Passer à l'instruction suivante
+        instruction_ptr += 1
 ```
 
 
@@ -194,105 +194,105 @@ Après avoir effectué plusieurs tests, j'ai constaté que dans sa version d'ess
 *Pour que les cellules de mémoire soient des entiers non signés compris entre 0 et 255, vous pouvez utiliser le type de données bytes de Python, qui est une séquence immutable d'octets. Vous pouvez créer une liste de 30000 octets non signés en utilisant la fonction bytes de Python et en initialisant chaque élément à 0. Voici comment la fonction interpret_brainFuck pourrait être modifiée pour utiliser des octets non signés pour les cellules de mémoire: ...*
 
 C'est là que les choses deviennent intéressantes. Le commentaire introductif est plutôt juste, mais le code fourni ne le prend absolument pas en compte. Il recrache le code lors de l'étape précédente.
-```Python
-	def interpret_brainFuck(brainFuck_code, user_input):
-			...
-	        if instruction == ">":
-	            # Incrémenter le pointeur de mémoire de manière cyclique
-	            memory_ptr = (memory_ptr + 1) % 30000
-	        elif instruction == "<":
-	            # Décrémenter le pointeur de mémoire de manière cyclique
-	            memory_ptr = (memory_ptr - 1) % 30000
-	        elif instruction == "+":
-	            # Incrémenter la valeur de la cellule de mémoire pointée
-	            memory[memory_ptr] += 1
-	        elif instruction == "-":
-	            # Décrémenter la valeur de la cellule de mémoire pointée
-	            memory[memory_ptr] -= 1
+```python
+def interpret_brainFuck(brainFuck_code, user_input):
+		...
+        if instruction == ">":
+            # Incrémenter le pointeur de mémoire de manière cyclique
+            memory_ptr = (memory_ptr + 1) % 30000
+        elif instruction == "<":
+            # Décrémenter le pointeur de mémoire de manière cyclique
+            memory_ptr = (memory_ptr - 1) % 30000
+        elif instruction == "+":
+            # Incrémenter la valeur de la cellule de mémoire pointée
+            memory[memory_ptr] += 1
+        elif instruction == "-":
+            # Décrémenter la valeur de la cellule de mémoire pointée
+            memory[memory_ptr] -= 1
 ```
 *Requête: Les valeurs stockées en mémoires sont comprises entre 0 et 255.*
 *Réponse:Pour s'assurer que les valeurs stockées en mémoire restent comprises entre 0 et 255, vous pouvez utiliser l'opérateur modulo % dans les opérations d'incrémentation et de décrémentation des cellules de mémoire. Cela permettra de limiter les valeurs des cellules de mémoire à l'intervalle [0, 255]. Voici comment la fonction interpret_brainFuck pourrait être modifiée pour limiter les valeurs des cellules de mémoire à l'intervalle [0, 255]:*
 ```python
-	def interpret_brainFuck(brainFuck_code, user_input):
-			...
-	        # Exécuter l'instruction en fonction de sa valeur
-	        if instruction == ">":
-	            # Incrémenter le pointeur de mémoire de manière cyclique
-	            memory_ptr = (memory_ptr + 1) % 30000
-	        elif instruction == "<":
-	            # Décrémenter le pointeur de mémoire de manière cyclique
-	            memory_ptr = (memory_ptr - 1) % 30000
-	        elif instruction == "+":
-	            # Incrémenter la valeur de la cellule de mémoire pointée de manière modulaire
-	            memory[memory_ptr] = (memory[memory_ptr] + 1) % 256
-	        elif instruction == "-":
-	            # Décrémenter la valeur de la cellule de mémoire pointée de manière modulaire
-	            memory[memory_ptr] = (memory[memory_ptr] - 1) % 256
-	        elif instruction == ".":
+def interpret_brainFuck(brainFuck_code, user_input):
+		...
+        # Exécuter l'instruction en fonction de sa valeur
+        if instruction == ">":
+            # Incrémenter le pointeur de mémoire de manière cyclique
+            memory_ptr = (memory_ptr + 1) % 30000
+        elif instruction == "<":
+            # Décrémenter le pointeur de mémoire de manière cyclique
+            memory_ptr = (memory_ptr - 1) % 30000
+        elif instruction == "+":
+            # Incrémenter la valeur de la cellule de mémoire pointée de manière modulaire
+            memory[memory_ptr] = (memory[memory_ptr] + 1) % 256
+        elif instruction == "-":
+            # Décrémenter la valeur de la cellule de mémoire pointée de manière modulaire
+            memory[memory_ptr] = (memory[memory_ptr] - 1) % 256
+        elif instruction == ".":
 ```
 
 Au final, j'ai obtenu un code qui fonctionne, mais qui ne passe que 6 tests sur 15. Ce qui n'est pas trop mal si l'on considère que je n'ai écrit aucune ligne de code moi-même. J'ai refait l'exercice en anglais. Cette fois-ci GPT-3 s'en sort beaucoup mieux. Le temps de traitement était plus court, ce qui a permis de réduire les problèmes de troncature des réponses (probablement dus à un délai d'expiration) et il a mieux intégré les remarques. Le code suivant a obtenu un score de 8 sur 15 lors du test initial.
 
 ```python
-	def solution(code, user_input):
-	    memory = [0] * 30000  # Memory with 30,000 cells, initialized to 0
+def solution(code, user_input):
+    memory = [0] * 30000  # Memory with 30,000 cells, initialized to 0
 
-	    # Pointer to current cell in memory
-	    ptr = 0
+    # Pointer to current cell in memory
+    ptr = 0
 
-	    # Index of the current input character
-	    input_index = 0
+    # Index of the current input character
+    input_index = 0
 
-	    # Output string
-	    output = ''
+    # Output string
+    output = ''
 
-	    # Loop through each character in the code
-	    i = 0
-	    while i < len(code):
-	        # Get the current character and move to the next
-	        char = code[i]
-	        i += 1
+    # Loop through each character in the code
+    i = 0
+    while i < len(code):
+        # Get the current character and move to the next
+        char = code[i]
+        i += 1
 
-	        if char == '>':
-	            # Increment the pointer, wrapping around if necessary
-	            ptr = (ptr + 1) % len(memory)
-	        elif char == '<':
-	            # Decrement the pointer, wrapping around if necessary
-	            ptr = (ptr - 1) % len(memory)
-	        elif char == '+':
-	            # Increment the value at the current cell, wrapping around if necessary
-	            memory[ptr] = (memory[ptr] + 1) % 256
-	        elif char == '-':
-	            # Decrement the value at the current cell, wrapping around if necessary
-	            memory[ptr] = (memory[ptr] - 1) % 256
-	        elif char == '.':
-	            # Append the character with the ASCII value of the current cell to the output string
-	            output += chr(memory[ptr])
-	        elif char == ',':
-	            # Input a character from the user_input list and store its ASCII value in the current cell
-	            memory[ptr] = ord(user_input[input_index])
-	            input_index += 1
-	        elif char == '[':
-	            # If the value at the current cell is 0, jump to the corresponding ']'
-	            if memory[ptr] == 0:
-	                loop = 1
-	                while loop > 0:
-	                    char = code[i]
-	                    i += 1
-	                    if char == '[':
-	                        loop += 1
-	                    elif char == ']':
-	                        loop -= 1
-	        elif char == ']':
-	            # If the value at the current cell is not 0, jump back to the corresponding '['
-	            loop = 1
-	            while loop > 0:
-	                i -= 1
-	                char = code[i]
-	                if char == '[':
-	                    loop -= 1
-	    print('Output :', output)
-	    return output
+        if char == '>':
+            # Increment the pointer, wrapping around if necessary
+            ptr = (ptr + 1) % len(memory)
+        elif char == '<':
+            # Decrement the pointer, wrapping around if necessary
+            ptr = (ptr - 1) % len(memory)
+        elif char == '+':
+            # Increment the value at the current cell, wrapping around if necessary
+            memory[ptr] = (memory[ptr] + 1) % 256
+        elif char == '-':
+            # Decrement the value at the current cell, wrapping around if necessary
+            memory[ptr] = (memory[ptr] - 1) % 256
+        elif char == '.':
+            # Append the character with the ASCII value of the current cell to the output string
+            output += chr(memory[ptr])
+        elif char == ',':
+            # Input a character from the user_input list and store its ASCII value in the current cell
+            memory[ptr] = ord(user_input[input_index])
+            input_index += 1
+        elif char == '[':
+            # If the value at the current cell is 0, jump to the corresponding ']'
+            if memory[ptr] == 0:
+                loop = 1
+                while loop > 0:
+                    char = code[i]
+                    i += 1
+                    if char == '[':
+                        loop += 1
+                    elif char == ']':
+                        loop -= 1
+        elif char == ']':
+            # If the value at the current cell is not 0, jump back to the corresponding '['
+            loop = 1
+            while loop > 0:
+                i -= 1
+                char = code[i]
+                if char == '[':
+                    loop -= 1
+    print('Output :', output)
+    return output
 ```
 ## Détecter les IA avec Python 3.10 
 
@@ -302,31 +302,31 @@ GPT-3 ne connait que python jusqu'à la version 3.8, si on lui demande d'utilise
 >
 > R: Oui, vous pouvez utiliser un dictionnaire et la fonction get pour remplacer les structures if et elif dans la fonction interpret_brainFuck. Le dictionnaire sera utilisé pour associer chaque instruction BrainFuck à une fonction qui effectue l'opération correspondante. Voici comment la fonction interpret_brainFuck pourrait être modifiée pour utiliser un dictionnaire et la fonction get:
 ```python 
-	def interpret_brainFuck(brainFuck_code, user_input):
-		...
-	    operations = {
-	        ">": lambda: setattr(memory_ptr, (memory_ptr + 1) % 30000),
-	        "<": lambda: setattr(memory_ptr, (memory_ptr - 1) % 30000),
-	        "+": lambda: setattr(memory[memory_ptr], (memory[memory_ptr] + 1) % 256),
-	        "-": lambda: setattr(memory[memory_ptr], (memory[memory_ptr] - 1) % 256),
-	        ".": lambda: setattr(output, output + chr(memory[memory_ptr])),
-	        ",": lambda: setattr(memory[memory_ptr], ord(user_input[input_idx])),
-	        "[": lambda: setattr(instruction_ptr, brainFuck_code.index("]", instruction_ptr))
-	            if memory[memory_ptr] == 0 else None,
-	        "]": lambda: setattr(instruction_ptr, brainFuck_code.index("[", 0, instruction_ptr))
-	            if memory[memory_ptr] != 0 else None,
-	    }
+def interpret_brainFuck(brainFuck_code, user_input):
+	...
+    operations = {
+        ">": lambda: setattr(memory_ptr, (memory_ptr + 1) % 30000),
+        "<": lambda: setattr(memory_ptr, (memory_ptr - 1) % 30000),
+        "+": lambda: setattr(memory[memory_ptr], (memory[memory_ptr] + 1) % 256),
+        "-": lambda: setattr(memory[memory_ptr], (memory[memory_ptr] - 1) % 256),
+        ".": lambda: setattr(output, output + chr(memory[memory_ptr])),
+        ",": lambda: setattr(memory[memory_ptr], ord(user_input[input_idx])),
+        "[": lambda: setattr(instruction_ptr, brainFuck_code.index("]", instruction_ptr))
+            if memory[memory_ptr] == 0 else None,
+        "]": lambda: setattr(instruction_ptr, brainFuck_code.index("[", 0, instruction_ptr))
+            if memory[memory_ptr] != 0 else None,
+    }
 
-	    # Répéter jusqu'à ce que l'instruction pointée soit "EOF" (fin de fichier)
-	    while brainFuck_code[instruction_ptr] != "EOF":
-	        # Récupérer l'instruction actuelle et exécuter l'opération correspondante
-	        operations.get(brainFuck_code[instruction_ptr], lambda: None)()
+    # Répéter jusqu'à ce que l'instruction pointée soit "EOF" (fin de fichier)
+    while brainFuck_code[instruction_ptr] != "EOF":
+        # Récupérer l'instruction actuelle et exécuter l'opération correspondante
+        operations.get(brainFuck_code[instruction_ptr], lambda: None)()
 
-	        # Passer à l'instruction suivante
-	        instruction_ptr += 1
+        # Passer à l'instruction suivante
+        instruction_ptr += 1
 
-	    # Retourner la sortie générée par le code BrainFuck
-	    return output
+    # Retourner la sortie générée par le code BrainFuck
+    return output
 ```
 > Dans cette version de la fonction, chaque instruction BrainFuck est associée à une fonction lambda qui effectue l'opération correspondante. Lorsque l'instruction est exécutée, la fonction lambda est appelée en utilisant la méthode get du dictionnaire 'operations'.
 
