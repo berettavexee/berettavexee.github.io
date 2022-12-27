@@ -37,7 +37,7 @@ Voici les règles du défi:
 *Requette:Je voudrais un interpreteur brainfuck en python 3.*
 
 *Résultat:*
-```python 
+```python
 #!/usr/bin/env python3
 import sys
 
@@ -119,7 +119,9 @@ GPT-3 nous donne un interpréteur BF fonctionnel qui semble avoir été copié-c
 *Résultat:*
 
 >Voici comment vous pourriez écrire une fonction en Python 3 qui interprète du code Brainfuck. Cette fonction prend en entrée une chaîne de caractères représentant le code Brainfuck et une chaîne de caractères représentant les entrées utilisateur, et retourne une chaîne de caractères représentant la sortie générée par le code Brainfuck:
-```python 
+
+```python
+
 def interpret_brainfuck(brainfuck_code, user_input):
     # Créer une liste de 30000 bytes non signés pour la mémoire
     memory = [0] * 30000
@@ -194,6 +196,7 @@ Après avoir effectué plusieurs tests, j'ai constaté que dans sa version d'ess
 *Pour que les cellules de mémoire soient des entiers non signés compris entre 0 et 255, vous pouvez utiliser le type de données bytes de Python, qui est une séquence immutable d'octets. Vous pouvez créer une liste de 30000 octets non signés en utilisant la fonction bytes de Python et en initialisant chaque élément à 0. Voici comment la fonction interpret_brainFuck pourrait être modifiée pour utiliser des octets non signés pour les cellules de mémoire: ...*
 
 C'est là que les choses deviennent intéressantes. Le commentaire introductif est plutôt juste, mais le code fourni ne le prend absolument pas en compte. Il recrache le code lors de l'étape précédente.
+
 ```python
 def interpret_brainFuck(brainFuck_code, user_input):
 		...
@@ -212,6 +215,7 @@ def interpret_brainFuck(brainFuck_code, user_input):
 ```
 *Requête: Les valeurs stockées en mémoires sont comprises entre 0 et 255.*
 *Réponse:Pour s'assurer que les valeurs stockées en mémoire restent comprises entre 0 et 255, vous pouvez utiliser l'opérateur modulo % dans les opérations d'incrémentation et de décrémentation des cellules de mémoire. Cela permettra de limiter les valeurs des cellules de mémoire à l'intervalle [0, 255]. Voici comment la fonction interpret_brainFuck pourrait être modifiée pour limiter les valeurs des cellules de mémoire à l'intervalle [0, 255]:*
+
 ```python
 def interpret_brainFuck(brainFuck_code, user_input):
 		...
@@ -301,6 +305,7 @@ GPT-3 ne connait que python jusqu'à la version 3.8, si on lui demande d'utilise
 > Q: Pourrais-tu utiliser match case à la place de if elif ?
 >
 > R: Oui, vous pouvez utiliser un dictionnaire et la fonction get pour remplacer les structures if et elif dans la fonction interpret_brainFuck. Le dictionnaire sera utilisé pour associer chaque instruction BrainFuck à une fonction qui effectue l'opération correspondante. Voici comment la fonction interpret_brainFuck pourrait être modifiée pour utiliser un dictionnaire et la fonction get:
+
 ```python 
 def interpret_brainFuck(brainFuck_code, user_input):
 	...
