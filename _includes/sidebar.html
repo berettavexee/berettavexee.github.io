@@ -24,6 +24,7 @@
         {% endif %}
       {% endif %}
     {% endfor %}
+    <a class="sidebar-nav-item{% if page.title == 'Home' %} active{% endif %}" href="{{ '/atom.xml' | absolute_url }}">RSS</a>
     <span class="sidebar-nav-item">Version v{{ site.version }}</span>
   </nav>
 
