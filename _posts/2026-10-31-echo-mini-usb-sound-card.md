@@ -108,17 +108,17 @@ The PLL's oscillator runs at 24 MHz × POSDIV / PREDIV, where POSDIV is an 11-bi
 
 Each table entry has four parameters: POSDIV = 8 × the second + the 3 low bits of the first, PREDIV = the third, and the fourth is the output divider code (3 → ÷5, 8 → ÷9, 9 → ÷3, 10 → ÷6). Downstream, the clock unit divides the PLL output by 5 to make the I2S master clock (MCLK), and the I2S block divides MCLK again to get the bit clock, 64 × the sample rate. With that formula, every entry in the original stock tables gives:
 
-| Parameters | POSDIV / PREDIV | VCO | Output divider | PLL output | MCLK (÷5) | Sample rates (I2S divider) | On the device |
-|---|---|---|---|---|---|---|---|
-| 3 18 25 3 | 147 / 25 | 141.12 MHz | ÷5 | 28.224 MHz | 5.6448 MHz | 11.025 (÷8), 22.05 kHz (÷4) | no clock at all |
-| 0 48 50 8 | 384 / 50 | 184.32 MHz | ÷9 | 20.48 MHz | 4.096 MHz | 8 (÷8), 16 kHz (÷4) | exact |
-| 0 24 25 10 | 192 / 25 | 184.32 MHz | ÷6 | 30.72 MHz | 6.144 MHz | 12 (÷8), 24 kHz (÷4) | exact |
-| 6 36 25 3 | 294 / 25 | 282.24 MHz | ÷5 | 56.448 MHz | 11.2896 MHz | 44.1 (÷4), 88.2 kHz (÷2) | exact |
-| 0 96 50 8 | 768 / 50 | 368.64 MHz | ÷9 | 40.96 MHz | 8.192 MHz | 32 kHz (÷4) | exact |
-| 0 48 25 10 | 384 / 25 | 368.64 MHz | ÷6 | 61.44 MHz | 12.288 MHz | 48 kHz (÷4) | exact |
-| 0 48 25 9 | 384 / 25 | 368.64 MHz | ÷3 | 122.88 MHz | 24.576 MHz | 96 (÷4), 192 kHz (÷2) | exact |
-| **4 73 25 3** | **588 / 25** | **564.48 MHz** | ÷5 | 112.896 MHz | 22.5792 MHz | **176.4 kHz (÷2)** | **0.28 % slow** |
-| 0 96 25 8 | 768 / 25 | 737.28 MHz | ÷9 | 81.92 MHz | 16.384 MHz | 64 (÷4), 128 kHz (÷2) | far too slow |
+| POSDIV / PREDIV | VCO | Output divider | PLL output | MCLK (÷5) | Sample rates (I2S divider) | On the device |
+|---|---|---|---|---|---|---|
+| 147 / 25 | 141.12 MHz | ÷5 | 28.224 MHz | 5.6448 MHz | 11.025 (÷8), 22.05 kHz (÷4) | **no clock at all** |
+| 384 / 50 | 184.32 MHz | ÷9 | 20.48 MHz | 4.096 MHz | 8 (÷8), 16 kHz (÷4) | exact |
+| 192 / 25 | 184.32 MHz | ÷6 | 30.72 MHz | 6.144 MHz | 12 (÷8), 24 kHz (÷4) | exact |
+| 294 / 25 | 282.24 MHz | ÷5 | 56.448 MHz | 11.2896 MHz | 44.1 (÷4), 88.2 kHz (÷2) | exact |
+| 768 / 50 | 368.64 MHz | ÷9 | 40.96 MHz | 8.192 MHz | 32 kHz (÷4) | exact |
+| 384 / 25 | 368.64 MHz | ÷6 | 61.44 MHz | 12.288 MHz | 48 kHz (÷4) | exact |
+| 384 / 25 | 368.64 MHz | ÷3 | 122.88 MHz | 24.576 MHz | 96 (÷4), 192 kHz (÷2) | exact |
+| **588 / 25** | **564.48 MHz** | ÷5 | 112.896 MHz | 22.5792 MHz | **176.4 kHz (÷2)** | **0.28 % slow** |
+| 768 / 25 | 737.28 MHz | ÷9 | 81.92 MHz | 16.384 MHz | 64 (÷4), 128 kHz (÷2) | **far too slow** |
 
 The bad entries are exactly the ones whose oscillator falls outside **184–369 MHz**, the range of every entry that works. The stock parameters are correct on paper; the silicon just does not follow. Months ago I had replaced the 11.025/22.05/64/128 kHz entries with proven PLLs (TRM documentation and SDK) and different clock ratios without knowing why the stock ones failed. The stock firmware drives the PLL outside the range it can hold, and nobody seems to have checked the accuracy of those entries.
 
@@ -126,14 +126,14 @@ The fix for 176.4 kHz is to use the 44.1 kHz PLL (282 MHz) and halve the I2S div
 
 The table the firmware uses now has only three oscillator frequencies, all inside the proven range. Rates in bold no longer use their stock entry:
 
-| Parameters | VCO | PLL output | MCLK | Sample rates (I2S divider, MCLK / sample rate) |
-|---|---|---|---|---|
-| 0 48 50 8 | 184.32 MHz | 20.48 MHz | 4.096 MHz | 8 kHz (÷8, 512 fs), 16 kHz (÷4, 256 fs) |
-| 0 24 25 10 | 184.32 MHz | 30.72 MHz | 6.144 MHz | 12 kHz (÷8, 512 fs), 24 kHz (÷4, 256 fs) |
-| 6 36 25 3 | 282.24 MHz | 56.448 MHz | 11.2896 MHz | **11.025 kHz (÷16, 1024 fs)**, **22.05 kHz (÷8, 512 fs)**, 44.1 kHz (÷4, 256 fs), 88.2 kHz (÷2, 128 fs), **176.4 kHz (÷1, 64 fs)** |
-| 0 96 50 8 | 368.64 MHz | 40.96 MHz | 8.192 MHz | 32 kHz (÷4, 256 fs), **64 kHz (÷2, 128 fs)** |
-| 0 48 25 10 | 368.64 MHz | 61.44 MHz | 12.288 MHz | 48 kHz (÷4, 256 fs) |
-| 0 48 25 9 | 368.64 MHz | 122.88 MHz | 24.576 MHz | 96 kHz (÷4, 256 fs), **128 kHz (÷3, 192 fs)**, 192 kHz (÷2, 128 fs) |
+| VCO | PLL output | MCLK | Sample rates (I2S divider) |
+|---|---|---|---|
+| 184.32 MHz | 20.48 MHz | 4.096 MHz | 8 kHz (÷8), 16 kHz (÷4) |
+| 184.32 MHz | 30.72 MHz | 6.144 MHz | 12 kHz (÷8), 24 kHz (÷4) |
+| 282.24 MHz | 56.448 MHz | 11.2896 MHz | **11.025 kHz (÷16)**, **22.05 kHz (÷8)**, 44.1 kHz (÷4), 88.2 kHz (÷2), **176.4 kHz** |
+| 368.64 MHz | 40.96 MHz | 8.192 MHz | 32 kHz (÷4), **64 kHz (÷2)** |
+| 368.64 MHz | 61.44 MHz | 12.288 MHz | 48 kHz (÷4) |
+| 368.64 MHz | 122.88 MHz | 24.576 MHz | 96 kHz (÷4), **128 kHz (÷3)**, 192 kHz (÷2) |
 
 ## One last false alarm
 
