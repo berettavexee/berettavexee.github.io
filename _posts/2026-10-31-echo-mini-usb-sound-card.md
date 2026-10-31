@@ -35,6 +35,9 @@ The difficulty is the clock. The host sends, say, 44.1 samples per millisecond o
 - **synchronous / adaptive**: the device follows the host's rate (adjusting its own clock, or dropping and repeating samples). The output drifts away from the original signal to make up for the frequency difference, and the clock offset itself is never corrected;
 - **asynchronous**: the device keeps its own clock and sends the host a *feedback* value, "send me 44.1017 samples per frame", on a second endpoint. The host adjusts how many samples it puts in each packet. Nothing is ever dropped or repeated: this is what "bit-perfect" means here.
 
+![UAC1 packets at full speed](/assets/img/echo-mini-uac1-frames.svg)
+*UAC1 at full speed in asynchronous mode: one audio packet and one feedback packet per 1 ms frame.*
+
 ## Step 1: UAC1 at full speed
 
 The USB controller is a Synopsys DWC2, which my firmware already drove for the USB disk mode. I added a generic "class" layer to the driver (descriptors, class requests, an isochronous OUT endpoint), and `uac.c` for the sound card itself: descriptors, the volume and sample-rate requests, and a copy of each packet straight into the DACs' DMA ring. No codec involved, so the second core stays asleep.
@@ -83,6 +86,9 @@ Three failed attempts:
 - the feedback kept the **old** sample rate after a rate change: the host reads the first feedback packets to guess their format, so the packet already queued had to be replaced at once;
 - Linux **ignores** a feedback endpoint that does not answer at every polling interval. So no empty or skipped packets;
 - one audio packet **every microframe**, re-armed from the interrupt: one packet in two was missed. Going to a packet every 4 microframes (500 µs) fixed it.
+
+![UAC2 packets at high speed](/assets/img/echo-mini-uac2-frames.svg)
+*UAC2 at high speed, as the firmware does it: an audio packet every 4 microframes, the feedback every 8.*
 
 The fourth image (97R) worked: six sample rates from 44.1 to 192 kHz, zero samples dropped or repeated, about 6,000 interrupts per second. 
 
