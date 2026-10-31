@@ -48,11 +48,17 @@ Second bug: **high-pitched beeps** whenever the screen changed. At full speed, t
 I played a whole album (29 minutes, 1.7 million packets), not one packet lost during playback, one drift correction every 50 to 60 seconds. About 40 ppm between my PC's clock and the Echo Mini.
 After five or six attempts, I now have a sound card that works in 16 and 24-bit modes at 44.1 and 48 kHz in synchronous mode. The clock shift is inaudible. It’s encouraging, and I reckon I’ll have this sorted out soon (I’d been a bit ill and was short of sleep).
 
+![The sound card screen in step 1](/assets/img/echo-mini-uac1-sync.jpg)
+*Step 1, synchronous mode at 44.1 kHz: the buffer holds 10 ms of audio, and the "repeated" counter shows the samples repeated to make up for the clock drift.*
+
 ## Step 2: asynchronous feedback
 
 The feedback endpoint itself was not difficult. It's an isochronous IN endpoint on a periodic TX FIFO. The format is a bit strange but well documented: a 3-byte value in 10.14 fixed point (samples per frame), sent every frame.
 
 Computing *what* to send was the difficult part. My first idea was to measure the DACs' rate in RX/host frames. The measurements were off by 13 to 33 % and jumped around: the frame number read from the controller skips values. The value sent to the host hit the ±1 % clock adjustment limit, the buffer drained, and the fallback repeated samples at regular intervals (Beeps and static noise).
+
+![The sound card screen with the first feedback](/assets/img/echo-mini-uac1-feedback.jpg)
+*The first feedback attempt: 43,658.9 Hz is 44,100 Hz minus exactly 1 %, the limit. The host sent too little, and 26,063 samples had to be repeated.*
 
 What most asynchronous sound cards do is a **control loop on the buffer's fill level**: if the ring holds more than 10 ms of audio, ask for a bit less; if it holds less, ask for a bit more. A proportional-integral controller does it *(as a former automation engineer, I’m very fond of PI control)*. The fill is averaged over about 64 packets. I simulated it in Python for ±40 and +300 ppm before trying it on the device. The integral term ends up holding the clock difference, and the proportional term keeps the buffer on target.
 
