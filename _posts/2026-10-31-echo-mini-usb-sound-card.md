@@ -8,7 +8,7 @@ tags: firmware USB audio UAC reverse-engineering ECHO-MINI
 ---
 
 The SNOWSKY ECHO MINI is a small, cheap, Chinese-made, portable music player built around a Rockchip RKNanoD (Two Cortex-M3 SoC) and two Cirrus Logic CS43131 DACs. It’s an astonishing piece of kit because the DACs are far too good compared to the rest of the components.
-For the past weeks I have been writing [a new firmware for it from scratch](https://github.com/berettavexee/echo-mini-newfw). Version 0.98, released today, turns the player into a **DAC** or *USB sound card* for the non-audio people. You plug it into a computer or your phone, and the computer's sound comes out of the player's headphone jack, sample for sample. Why? Because the audio circuitry and in particular the protection against electrical interference is "poor" in most consumer electronics. Using a DAC powered by its own battery helps to avoid these disturbances, whether they’re caused by the power supply to your hard drives or a 5,000-watt lighting rig with switch-mode power supplies for sports LED lighting.
+For the past weeks I have been writing [a new firmware for it from scratch](https://github.com/berettavexee/echo-mini-newfw). Version 0.98, released today, turns the player into a **DAC** or *USB sound card* for the non-audio people. You plug it into a computer or your phone, and the computer's sound comes out of the player's headphone jack, sample for sample. Why? Because the audio circuitry and in particular the protection against electrical interference is "poor" in most consumer electronics. Using a DAC powered by its own battery helps to avoid these disturbances, whether they’re caused by your hard drives seeking or a 5,000-watt LED lighting rig with switch-mode power supplies. In my experience, this is far more important for sound quality than a lot of other audiophile ‘voodoo’ gadgets.
 
 What was supposed to be a simple implementation of an existing function – with the help of Claude Code, a bit of documentation, the SDK and other open-source implementations – turned into 22 test images and a journey down the rabbit hole to understand the device’s clock frequency drifts.
 
@@ -16,7 +16,7 @@ What was supposed to be a simple implementation of an existing function – with
 
 Two firmwares already have a "USB DAC" mode, and I studied both before writing a line:
 
-- **The stock firmware** declares a USB Audio Class 1 (UAC1) device: 16 bits, **48 kHz only**, an *adaptive* isochronous endpoint, plus a HID interface so the player's keys act as media keys on the computer. Fine for YouTube, not so much for a FLAC library at 44.1 kHz that the computer has to resample.
+- **The stock firmware** declares a USB Audio Class 1 (UAC1) device: **16 bits, 48 kHz only**, an *adaptive* isochronous endpoint, plus a HID interface so the player's keys act as media keys on the computer. Fine for YouTube, not so much for a FLAC library at 44.1 kHz that the computer has to resample.
 - **[EchoPod](https://github.com/BasilSkyWalk/echopod)**, another custom firmware for the same player, does UAC1 at 16 or 24 bits, 44.1 or 48 kHz. Its endpoint is adaptive too, and it handles the drift between the computer's clock and the DACs' clock by dropping or repeating a sample when its buffer drifts too far. Simple and robust, but not bit-perfect.
 
 Both have clocks that can drift; I’d already noticed some strange behaviour in the SoC clock. We’ll come back to that. But that’s what motivated me to implement a clock feedback.
