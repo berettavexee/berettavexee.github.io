@@ -14,7 +14,7 @@ What was supposed to be a simple implementation of an existing function – with
 
 ## What already existed
 
-Two firmwares already have a "USB DAC" mode, and I studied both before writing a line:
+Two firmwares already have a "USB DAC" mode:
 
 - **The stock firmware** declares a USB Audio Class 1 (UAC1) device: **16 bits, 48 kHz only**, an *adaptive* isochronous endpoint, plus a HID interface so the player's keys act as media keys on the computer. Fine for YouTube, not so much for a FLAC library at 44.1 kHz that the computer has to resample.
 - **[EchoPod](https://github.com/BasilSkyWalk/echopod)**, another custom firmware for the same player, does UAC1 at 16 or 24 bits, 44.1 or 48 kHz. Its endpoint is adaptive too, and it handles the drift between the computer's clock and the DACs' clock by dropping or repeating a sample when its buffer drifts too far. Simple and robust, but not bit-perfect.
@@ -22,11 +22,11 @@ Two firmwares already have a "USB DAC" mode, and I studied both before writing a
 Both have clocks that can drift; I’d already noticed some strange behaviour in the SoC clock. We’ll come back to that. But that’s what motivated me to implement a clock feedback.
 
 The plan was:
-1. UAC1 at full speed, 16 and 24 bits, 44.1 and 48 kHz in synchronous mode;
-2. asynchronous mode: the player keeps its own clock and tells the host how many samples to send;
-3. UAC2 at high speed, for the higher sample rates.
+1. **UAC1 at full speed**, 16 and 24 bits, 44.1 and 48 kHz in synchronous mode;
+2. **asynchronous mode**: the player keeps its own clock and tells the host how many samples to send;
+3. **UAC2 at high speed**, for the higher sample rates.
 
-## A ten-second primer on USB audio
+## USB audio 101
 
 Audio over USB uses **isochronous** transfers: the host sends one packet per frame (every 1 ms at full speed, or every 125 µs "microframe" at high speed), with no retry. A packet that is missed is gone.
 
@@ -168,7 +168,7 @@ Everything was tested on a Linux PC first, without PulseAudio or PipeWire in the
 
 The firmware was written mostly by [Claude Code](https://claude.com/claude-code). I did the listening tests on the device; the analysis of each log was done with a bunch of python script.
 
-## Lessons
+## Lessons learn
 
 - **Check what the hardware actually did.** Writing 256 to a register does not give you 256 words, so read the value back and log it.
 - **Measure, don't listen.** A 0.28 % error is inaudible and was there from the first version. A rate measurement found it in ten seconds.
