@@ -99,18 +99,18 @@ The reason is the controller's receive FIFO. The code was asking for 256 words, 
 The options were to send a packet every 250 µs (twice the interrupts), 3-byte slots (582 bytes: no room left at all), or stopping at 96 kHz. In UAC2, sample rates belong to the clock, not to the format, so I could not offer 192 kHz in 16 bits only. 
 The controller already generates thousands of interrupts per second; it is possible to push it a little further, but the device becomes very unresponsive and even the slightest interaction can cause frame loss. The 24-bit 176.4 and 192 kHz formats are already quite rare, reserved for archiving audio or masters that are to be processed or mixed. Personally, I don’t have any tracks in this format in my library. I’ve decided to limit the sampling rate to 96 kHz.
 
-So the sound card now does **44.1, 48, 88.2 and 96 kHz in 16, 24 or 32 bits**, with packets of 392 bytes at most. Result on the device: 167,708 packets, nothing dropped, repeated or re-aligned.
+So the DAC feature now does **44.1, 48, 88.2 and 96 kHz in 16, 24 or 32 bits**, with packets of 392 bytes at most. Result on the device: 167,708 packets, nothing dropped, repeated or re-aligned.
 
 That’s great – we’re offering twice the sampling rate of the original firmware at 24-bit. Just one more test to go and we can release this feature! 
 
-## The bug the sound card found in the music player
+## The clock bug
 
 The sound card logs the DACs' real output rate, measured from the DMA's progress over 10 seconds. During the 97R test, when 176.4 kHz was still offered, it said **175,912 Hz**: 0.28 % slow.
 
-The audio PLL settings come from the stock firmware's tables. My file player had been using the same ones since its first versions, so 176.4 kHz *files* had always been played 0.28 % slow, a pitch error about four times smaller than what a trained ear can notice. Nobody can hear that, and a test by ear could not catch it either. The sound card made it visible, because a feedback loop cannot settle on a rate that is not what it claims.
+The audio PLL settings come from the stock firmware's tables. My audio player had been using the same ones since its first versions, so 176.4 kHz *Audio* had always been played 0.28 % slow, a pitch error about four times smaller than what a trained musician can notice. Nobody can hear that, and a test by ear could not catch it either. The sound card feature made it visible, because a feedback loop cannot settle on a rate that is not what it claims.
 
 My first fix was wrong: I took one of the four PLL parameters for a fractional part and "doubled" the 44.1 kHz entry. The device played at 175,200 Hz, with horrible beeps. So I went back to the chip's reference manual.
-The PLL's oscillator runs at 24 MHz × POSDIV / PREDIV, where POSDIV is an 11-bit number split across two registers (8 high bits in one, 3 low bits in the other). Then an output divider follows, coded rather than direct: the stock tables list the expected output frequency next to each entry, which gives the code-to-divider mapping. Yes, it’s horribly complicated just to set a frequency.
+The PLL's oscillator runs at 24 MHz × POSDIV / PREDIV, where POSDIV is an 11-bit number split across two registers (8 high bits in one, 3 low bits in the other). Then an output divider follows, coded rather than direct: the stock tables list the expected output frequency next to each entry, which gives the code-to-divider mapping. **Yes, it’s horribly complicated just to set a frequency.**
 
 Each table entry has four parameters: POSDIV = 8 × the second + the 3 low bits of the first, PREDIV = the third, and the fourth is the output divider code (3 → ÷5, 8 → ÷9, 9 → ÷3, 10 → ÷6). Downstream, the clock unit divides the PLL output by 5 to make the I2S master clock (MCLK), and the I2S block divides MCLK again to get the bit clock, 64 × the sample rate. With that formula, every entry in the original stock tables gives:
 
@@ -126,7 +126,7 @@ Each table entry has four parameters: POSDIV = 8 × the second + the 3 low bits 
 | **588 / 25** | **564.48 MHz** | ÷5 | 112.896 MHz | 22.5792 MHz | **176.4 kHz (÷2)** | **0.28 % slow** |
 | 768 / 25 | 737.28 MHz | ÷9 | 81.92 MHz | 16.384 MHz | 64 (÷4), 128 kHz (÷2) | **far too slow** |
 
-The bad entries are exactly the ones whose oscillator falls outside **184–369 MHz**, the range of every entry that works. The stock parameters are correct on paper; the silicon just does not follow. Months ago I had replaced the 11.025/22.05/64/128 kHz entries with proven PLLs (TRM documentation and SDK) and different clock ratios without knowing why the stock ones failed. The stock firmware drives the PLL outside the range it can hold, and nobody seems to have checked the accuracy of those entries.
+The bad entries are exactly the ones whose oscillator falls outside **184–369 MHz**. The stock parameters are correct on paper; the silicon just does not follow. Months ago I had replaced the 11.025/22.05/64/128 kHz entries with proven PLLs (from TRM documentation and SDK) and different clock ratios without knowing why the stock ones failed. The stock firmware drives the PLL outside the range it can hold, and nobody seems to have checked the accuracy of those entries. The stock firmware does a lot of overclocking, out-of-spec stuff and its frequency adjustment makes no sense; that’s not a surprise.
 
 The fix for 176.4 kHz is to use the 44.1 kHz PLL (282 MHz) and halve the I2S divider. I also added a permanent measurement of the output rate to the player's log, at each track change. On the player's test folder, **all 15 sample rates from 8 to 192 kHz are now exact**, to the 0.015 % precision of a 7-second track.
 
