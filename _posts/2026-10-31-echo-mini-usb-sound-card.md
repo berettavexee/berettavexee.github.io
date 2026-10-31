@@ -42,13 +42,14 @@ The difficulty is the clock. The host sends, say, 44.1 samples per millisecond o
 
 The USB controller is a Synopsys DWC2, which my firmware already drove for the USB disk mode. I added a generic "class" layer to the driver (descriptors, class requests, an isochronous OUT endpoint), and `uac.c` for the sound card itself: descriptors, the volume and sample-rate requests, and a copy of each packet straight into the DACs' DMA ring. No codec involved, so the second core stays asleep.
 
-The DWC2 has a quirk with isochronous endpoints: each one is armed for an **even or odd frame**, and a packet arriving in a frame of the other parity is silently ignored. So the endpoint must be re-armed for the right parity after each packet, and re-aimed when an "incomplete isochronous OUT" interrupt says a frame went by.
+The DWC2 has a specific quirk with isochronous endpoints: each one is enabled for either an **even or odd frame**. If a packet arrives in the wrong frame, it is ignored without warning.
+It is therefore necessary to monitor and reactivate the correct parity after each packet in order to account for the possibility of an offset or an ‘incomplete isochronous OUT’ interruption.
 
-Then the device. **No sound at all**, for five test images. Linux saw a sound card, packets were arriving, the DMA was running. The cause was two GPIOs: starting the USB controller set the pins the way the USB disk mode wants them, and one of them, GPIO2_0, cuts the headphone outputs. In normal playback this never showed, because the audio output is restarted after every USB disk session. The sound card starts the audio first, then the USB, so it had to put the pins back.
+On the device: **absolutely no sound** for five test images. Linux detected a sound card, packets were coming through, and DMA was working. The cause was two GPIO pins: when the USB controller started up, it configured the pins according to the requirements of USB disk mode. One of them, GPIO2_0, disabled the headphone outputs.  During normal playback, this was never noticeable, as the GPIO pins are restored upon exiting USB disk mode.
 
 Second bug: **high-pitched beeps** whenever the screen changed. At full speed, the endpoint must be re-armed every millisecond, and the main loop was doing it. But drawing one line of text on the screen took 1.4 ms: packets were lost, and each 1 ms hole was filled by repeated samples. The quick fix was to service the USB from inside the drawing routine, between two glyphs.
 
-I played a whole album (29 minutes, 1.7 million packets), not one packet lost during playback, one drift correction every 50 to 60 seconds. About 40 ppm between my PC's clock and the Echo Mini.
+I played a whole album (29 minutes, 1.7 million packets), not one packet was lost during playback, one drift correction every 50 to 60 seconds. About 40 ppm between my PC's clock and the Echo Mini.
 After five or six attempts, I now have a sound card that works in 16 and 24-bit modes at 44.1 and 48 kHz in synchronous mode. The clock shift is inaudible. It’s encouraging, and I reckon I’ll have this sorted out soon (I’d been a bit ill and was short of sleep).
 
 ![The sound card screen in step 1](/assets/img/echo-mini-uac1-sync.jpg)
@@ -58,7 +59,7 @@ After five or six attempts, I now have a sound card that works in 16 and 24-bit 
 
 The feedback endpoint itself was not difficult. It's an isochronous IN endpoint on a periodic TX FIFO. The format is a bit strange but well documented: a 3-byte value in 10.14 fixed point (samples per frame), sent every frame.
 
-Computing *what* to send was the difficult part. My first idea was to measure the DACs' rate in RX/host frames. The measurements were off by 13 to 33 % and jumped around: the frame number read from the controller skips values. The value sent to the host hit the ±1 % clock adjustment limit, the buffer drained, and the fallback repeated samples at regular intervals (Beeps and static noise).
+Computing *what* to send was the difficult part. My first idea was to measure the DACs' rate in RX/host frames. The measurements were off by 13 to 33 % and jumped around: the frame number read from the controller skiped values. The value sent to the host hit the ±1 % clock adjustment limit, the buffer drained, and the fallback repeated samples at regular intervals (beeps and static noise).
 
 ![The sound card screen with the first feedback](/assets/img/echo-mini-uac1-feedback.jpg)
 *The first feedback attempt: 43,658.9 Hz is 44,100 Hz minus exactly 1 %, the limit. The host sent too little, and 26,063 samples had to be repeated.*
@@ -144,6 +145,17 @@ The table the firmware uses now has only three oscillator frequencies, all insid
 ## One last false alarm
 
 During the final tests I heard a **click at every stream start**. I suspected the ring, the DAC reconfiguration, the volume ramp… The test tones were sine waves that started abruptly, and an abrupt start clicks on any DAC. With a 50 ms fade-in, the clicks were gone. Make your test signals clean before you blame the device.
+
+##  Why bother with 0.28 %?
+**A 0.28 % error is a twentieth of a semitone. No one will hear it on a pop song, so why spend an evening on it?**
+
+Because the sound card cannot ignore it. The player and the computer have to agree on the clock to within a few ppm, and 0.28 % is 2,800 ppm. The higher the frequency, the shorter the feedback loop becomes, and the greater the risk of it diverging. It is therefore necessary to achieve sampling rates of 96 kHz.
+
+Because "bit-perfect" has to mean something. Delivering every sample untouched doesn't count for much if they come out at the wrong speed. An hour of music played 0.28 % slow lasts ten seconds longer, and a video played alongside drifts out of sync in the same way.
+
+Because a PLL outside its range is not a stable clock. The same setting gave no clock at all at 141 MHz and a clock far too slow at 737 MHz. At 564 MHz it was only slightly off, on my unit and at room temperature. Another unit, or a colder morning, could have done worse. A setting that only works "most of the time" is a bug that hasn't shown up yet.
+
+Finally this small error explained the big ones. Once I understood why 176.4 kHz was off, I understood why 11.025, 22.05, 64 and 128 kHz had failed months earlier, which I had fixed without knowing why. One bug that is understood is worth three that are only patched.
 
 ## How I tested
 
