@@ -149,9 +149,9 @@ During the final tests I heard a **click at every stream start**. I suspected th
 ##  Why bother with 0.28 %?
 **A 0.28 % error is a twentieth of a semitone. No one will hear it on a pop song, so why spend an evening on it?**
 
-Because the sound card cannot ignore it. The player and the computer have to agree on the clock to within a few ppm, and 0.28 % is 2,800 ppm. The higher the frequency, the shorter the feedback loop becomes, and the greater the risk of it diverging. It is therefore necessary to achieve sampling rates of 96 kHz.
+Because the sound card cannot ignore it. The player and the computer have to agree on the clock to within a few ppm, and 0.28 % is 2,800 ppm. The higher the frequency, the shorter the feedback loop becomes, and the greater the risk of it diverging. It is therefore necessary to achieve a stable sampling rates of 96 kHz.
 
-Because "bit-perfect" has to mean something. Delivering every sample untouched doesn't count for much if they come out at the wrong speed. An hour of music played 0.28 % slow lasts ten seconds longer, and a video played alongside drifts out of sync in the same way.
+It’s not just about displaying a high sampling rate; it has to make sense. It is possible to achieve a very high sampling rate by dropping or replaying microframes, or by running at an incorrect and unstable speed. Hence the aim of being ‘bit-perfect’. One hour of music played with a delay of 0.28 per cent lasts ten seconds longer, and a video played in parallel becomes desynchronised in the same way.
 
 Because a PLL outside its range is not a stable clock. The same setting gave no clock at all at 141 MHz and a clock far too slow at 737 MHz. At 564 MHz it was only slightly off, on my unit and at room temperature. Another unit, or a colder morning, could have done worse. A setting that only works "most of the time" is a bug that hasn't shown up yet.
 
