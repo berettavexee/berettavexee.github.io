@@ -84,9 +84,9 @@ UAC2 is a different beast from UAC1. There is an interface association descripto
 
 Three failed attempts:
 
-- the feedback kept the **old** sample rate after a rate change: the host reads the first feedback packets to guess their format, so the packet already queued had to be replaced at once;
+- the feedback keeps the **old** sample rate after a rate change: the host reads the first feedback packets to guess their format, so the packet already queued had to be replaced at once;
 - Linux **ignores** a feedback endpoint that does not answer at every polling interval. So no empty or skipped packets;
-- one audio packet **every microframe**, re-armed from the interrupt: one packet in two was missed. Going to a packet every 4 microframes (500 µs) fixed it.
+- one audio packet **every microframe** resulted in the loss of half of the packets. Switching to one packet every 4 micro-frames (500 µs) resolved the problem.
 
 ![UAC2 packets at high speed](/assets/img/echo-mini-uac2-frames.svg)
 *UAC2 at high speed, as the firmware does it: an audio packet every 4 microframes, the feedback every 8.*
