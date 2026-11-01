@@ -38,7 +38,7 @@ The difficulty is the clock. The host sends, say, 44.1 samples per millisecond o
 ![UAC1 packets at full speed](/assets/img/echo-mini-uac1-frames.svg)
 *UAC1 at full speed in asynchronous mode: one audio packet and one feedback packet per 1 ms frame.*
 
-## Step 1: UAC1 at full speed
+## Step 1: UAC1 at full speed (USB 1)
 
 The USB controller is a Synopsys DWC2, which my firmware already drove for the USB disk mode. I added a generic "class" layer to the driver (descriptors, class requests, an isochronous OUT endpoint), and `uac.c` for the sound card itself: descriptors, the volume and sample-rate requests, and a copy of each packet straight into the DACs' DMA ring. No codec involved, so the second core stays asleep.
 
@@ -63,8 +63,8 @@ The feedback endpoint itself was not difficult. It's an isochronous IN endpoint 
   - Fractional part: 0.1, expressed as 1/16,384. 0.1 × 16,384 = 1,638.4, rounded to 1,638.
   - Total: 720,896 + 1,638 = 722,534, or 0x0B0666. This integer is stored across 3 bytes.
 
-    0000101100 | 00011001100110
-    entier: 44 | fraction: 1638  (1638 / 16384 = 0,09998)
+    **0000101100 | 00011001100110**
+    *entier: 44 | fraction: 1638  (1638 / 16384 = 0,09998)*
 
 
 Computing *what* to send was the difficult part. My first idea was to measure the DACs' rate in RX/host frames. The measurements were off by 13 to 33 % and jumped around: the frame number read from the controller skiped values. The value sent to the host hit the ±1 % clock adjustment limit, the buffer drained, and the fallback repeated samples at regular intervals (beeps and static noise).
@@ -86,9 +86,9 @@ At high speed, a packet can arrive every 125 µs, and no main loop that also dra
 
 This is a direct improvement for UAC1 mode.
 
-## Step 3b: UAC2 at high speed
+## Step 3b: UAC2 at high speed (USB 2)
 
-UAC2 is a different beast from UAC1. There is an interface association descriptor, a *clock source* entity whose sample rate the host sets, `CUR` and `RANGE` requests instead of `GET_MIN`/`GET_MAX`/`GET_RES`, and feedback in 16.16 format, in samples per microframe. I kept UAC1 for full-speed ports and chose the descriptors according to the speed negotiated at enumeration.
+UAC2 is a different beast from UAC1 *(Change protocol; switch to USB 2)*. There is an interface association descriptor, a *clock source* entity whose sample rate the host sets, `CUR` and `RANGE` requests instead of `GET_MIN`/`GET_MAX`/`GET_RES`, and feedback in 16.16 format, in samples per microframe. I kept UAC1 for full-speed ports and chose the descriptors according to the speed negotiated at enumeration.
 
 Three failed attempts:
 
