@@ -60,13 +60,15 @@ After five or six attempts, I now have a sound card that works in 16 and 24-bit 
 The feedback endpoint itself was not difficult. It's an isochronous IN endpoint on a periodic TX FIFO. The format is a bit strange but well documented: a 3-byte value in 10.14 fixed point (samples per frame), sent every frame.
 
 **A Reminder About Fixed-Point Encoding:** 10.14 mean 10 bits for the integer part and 14 bits for the fractional part, for a total of 24 bits. The actual value is the integer part divided by 2¹⁴ = 16,384. In general, an **m.n** format has **m** integer bits and **n** fractional bits, and the value is the raw integer divided by 2ⁿ: 44.1 samples per frame is sent as:
-  - Integer part: 44, stored in the top 10 bits. 44 × 16 384 = 720 896.
-  - Fractional part: 0.1, expressed as 1/16,384. 0.1 × 16 384 = 1 638.4, rounded to 1,638.
-  - Total: 720,896 + 1,638 = 722,534, or 0x0B0666. This integer is stored across 3 bytes.
 
-| Integer | Fractional |
-| 44 x 16 384 | 1 638  (1 638 / 1 6384 = 0,09998) |
-| 0000101100 | 00011001100110 |
+- Integer part: 44, stored in the top 10 bits: 44 × 16,384 = 720,896.
+- Fractional part: 0.1, expressed in 16,384ths: 0.1 × 16,384 = 1,638.4, rounded to 1,638.
+- Total: 720,896 + 1,638 = 722,534, or 0x0B0666. This integer is stored across 3 bytes.
+
+| | Integer part (10 bits) | Fractional part (14 bits) |
+|---|---|---|
+| Value | 44 (44 × 16,384 = 720,896) | 1,638 (1,638 / 16,384 = 0.09998) |
+| Bits | `0000101100` | `00011001100110` |
 
 
 
