@@ -64,8 +64,8 @@ The feedback endpoint itself was not difficult. It's an isochronous IN endpoint 
   - Fractional part: 0.1, expressed as 1/16,384. 0.1 × 16,384 = 1,638.4, rounded to 1,638.
   - Total: 720,896 + 1,638 = 722,534, or 0x0B0666. This integer is stored across 3 bytes.
 
-**0000101100 | 00011001100110**
-*entier: 44 | fraction: 1638  (1638 / 16384 = 0,09998)*
+|**0000101100 | 00011001100110**|
+|Integer: 44 | fractional: 1638  (1638 / 16384 = 0,09998)|
 
 
 Computing *what* to send was the difficult part. My first idea was to measure the DACs' rate in RX/host frames. The measurements were off by 13 to 33 % and jumped around: the frame number read from the controller skiped values. The value sent to the host hit the ±1 % clock adjustment limit, the buffer drained, and the fallback repeated samples at regular intervals (beeps and static noise).
