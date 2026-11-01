@@ -22,9 +22,9 @@ Two firmwares already have a "USB DAC" mode:
 Both have clocks that can drift; I’d already noticed some strange behaviour in the SoC clock. We’ll come back to that. But that’s what motivated me to implement a clock feedback.
 
 The plan was:
-1. **UAC1 at full speed**, 16 and 24 bits, 44.1 and 48 kHz in synchronous mode;
+1. **UAC1 at full speed** (That means USB 1), 16 and 24 bits, 44.1 and 48 kHz in synchronous mode;
 2. **asynchronous mode**: the player keeps its own clock and tells the host how many samples to send;
-3. **UAC2 at high speed**, for the higher sample rates.
+3. **UAC2 at high speed** (That means USB 2), for the higher sample rates.
 
 ## USB audio 101
 
