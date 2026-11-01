@@ -43,9 +43,10 @@ The difficulty is the clock. The host sends, say, 44.1 samples per millisecond o
 ![The USB sound card in the ECHO MINI](/assets/img/echo-mini-usb-architecture.svg)
 *The USB sound card in the ECHO MINI: the samples come on the computer's clock, the DACs play them on the player's own clock, and the feedback keeps the two in step.*
 
-The USB controller hands each audio packet to the main core, whose interrupt handler copies it straight into a ring buffer holding about 10 ms of sound; the second core, which decodes files in normal playback, stays idle.
-A DMA channel feeds the ring to the I2S port and the two CS43131, one per channel, at a rate set by the RKNanoD's own audio PLL, not by the USB clock.
-The main core watches how full the ring is and turns that into the feedback value it sends back to the computer: that is the whole asynchronous mode.
+The USB DAC mode hands each audio packet to the main core, whose interrupt handler copies it straight into a ring buffer holding about 10 ms of PCM sound; the second core, which normally decodes files during playback, stays idle.
+A DMA channel feeds the ring to the I2S port and the two CS43131 (*one per channel*) at a rate set by the RKNanoD's own audio PLL, not by the USB clock.
+The main core watches how full the ring is and turns that into the feedback value it sends back to the computer: that is the **asynchronous mode**.
+If the audio source ignores the DAC's feedback values, it is in **“adaptive” mode**. The DAC must figure out how to synchronize with the source's clock by dropping or repeating audio frames.
 
 ## Step 1: UAC1 at full speed (USB 1)
 
