@@ -30,7 +30,7 @@ The plan was:
 
 Audio over USB uses **isochronous** transfers: the host sends one packet per frame (every 1 ms at full speed, or every 125 µs "microframe" at high speed), with no retry. A packet that is missed is gone.
 
-The difficulty is the clock. The host sends, say, 44.1 samples per millisecond on *its* clock; the DACs consume them on *theirs*. The two crystals differ by a few tens of ppm, so the buffer between them slowly fills or drains. There are two ways to deal with it:
+The difficulty is the clock. The host sends, say, 44.1 samples per millisecond on *its* clock; the DACs consume them on *theirs*. The two crystals differ by a few tens of ppm *(part per million)*, so the buffer between them slowly fills or drains. There are two ways to deal with it:
 
 - **synchronous / adaptive**: the device follows the host's rate (adjusting its own clock, or dropping and repeating samples). The output drifts away from the original signal to make up for the frequency difference, and the clock offset itself is never corrected;
 - **asynchronous**: the device keeps its own clock and sends the host a *feedback* value, "send me 44.1017 samples per frame", on a second endpoint. The host adjusts how many samples it puts in each packet. Nothing is ever dropped or repeated: this is what "bit-perfect" means here.
@@ -57,7 +57,15 @@ After five or six attempts, I now have a sound card that works in 16 and 24-bit 
 
 ## Step 2: asynchronous feedback
 
-The feedback endpoint itself was not difficult. It's an isochronous IN endpoint on a periodic TX FIFO. The format is a bit strange but well documented: a 3-byte value in 10.14 fixed point (samples per frame), sent every frame.
+The feedback endpoint itself was not difficult. It's an isochronous IN endpoint on a periodic TX FIFO. The format is a bit strange but well documented: a 3-byte value in 10.14 fixed point (samples per frame), sent every frame. 
+**A Reminder About Fixed-Point Encoding:** 10.14 mean 10 bits for the integer part and 14 bits for the fractional part, for a total of 24 bits. The actual value is the integer part divided by 2¹⁴ = 16,384. In general, an **m.n** format has **m** integer bits and **n** fractional bits, and the value is the raw integer divided by 2ⁿ: 44.1 samples per frame is sent as:
+  - Integer part: 44, stored in the top 10 bits. 44 × 16,384 = 720,896.
+  - Fractional part: 0.1, expressed as 1/16,384. 0.1 × 16,384 = 1,638.4, rounded to 1,638.
+  - Total: 720,896 + 1,638 = 722,534, or 0x0B0666. This integer is stored across 3 bytes.
+
+    0000101100 | 00011001100110
+    entier: 44 | fraction: 1638  (1638 / 16384 = 0,09998)
+
 
 Computing *what* to send was the difficult part. My first idea was to measure the DACs' rate in RX/host frames. The measurements were off by 13 to 33 % and jumped around: the frame number read from the controller skiped values. The value sent to the host hit the ±1 % clock adjustment limit, the buffer drained, and the fallback repeated samples at regular intervals (beeps and static noise).
 
@@ -91,7 +99,7 @@ Three failed attempts:
 ![UAC2 packets at high speed](/assets/img/echo-mini-uac2-frames.svg)
 *UAC2 at high speed, as the firmware does it: an audio packet every 4 microframes, the feedback every 8.*
 
-The fourth image (97R) worked: six sample rates from 44.1 to 192 kHz, zero samples dropped or repeated, about 6,000 interrupts per second. 
+The next image worked: six sample rates from 44.1 to 192 kHz, zero samples dropped or repeated, about 6,000 interrupts per second. 
 
 …in **16 bits**. When I played the same test in 24 bits the next morning, there was no sound at all. Linux showed a perfect feedback rate, but that was only because the device sends the nominal value when it receives nothing. The device's counters said: **zero packets received** in four minutes.
 
@@ -149,7 +157,7 @@ During the final tests I heard a **click at every stream start**. I suspected th
 ##  Why bother with 0.28 %?
 **A 0.28 % error is a twentieth of a semitone. No one will hear it on a pop song, so why spend an evening on it?**
 
-Because the sound card cannot ignore it. The player and the computer have to agree on the clock to within a few ppm, and 0.28 % is 2,800 ppm. The higher the frequency, the shorter the feedback loop becomes, and the greater the risk of it diverging. It is therefore necessary to achieve a stable sampling rates of 96 kHz.
+The player and the computer have to agree on the clock to within a few ppm, and 0.28 % is 2,800 ppm. The higher the frequency, the shorter the feedback loop becomes, and the greater the risk of it diverging. It is therefore necessary to achieve a stable sampling rates of 96 kHz.
 
 It’s not just about displaying a high sampling rate; it has to make sense. It is possible to achieve a very high sampling rate by dropping or replaying microframes, or by running at an incorrect and unstable speed. Hence the aim of being ‘bit-perfect’. One hour of music played with a delay of 0.28 per cent lasts ten seconds longer, and a video played in parallel becomes desynchronised in the same way.
 
