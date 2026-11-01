@@ -185,3 +185,13 @@ The firmware was written mostly by [Claude Code](https://claude.com/claude-code)
 - HID media keys. 
 
 The full details, in French, are in the project's [study notes](https://github.com/berettavexee/echo-mini-newfw/blob/main/ETUDE.md), sections 83 to 88, and [v0.98 is on GitHub](https://github.com/berettavexee/echo-mini-newfw/releases/tag/v0.98).
+
+## Erratum (2026-11-01)
+
+It took less than a day for reality to review this article.
+
+- **Phones ignore the feedback.** A Pixel 6a and an iPhone read it every millisecond, then politely ignore it, whatever the format. So, "bit-perfect" holds with Linux; with phones, version 0.99 drops a sample now and then, evenly spread. Inaudible, but humbling. ([Reported to Google](https://issuetracker.google.com/issues/579970942).)
+- **192 kHz in 24 bits works.** I explained at length why a packet every 250 µs would choke the device. I had never tried it: I had jumped from one packet per microframe (which failed) straight to 500 µs. At 250 µs, 192 kHz is 48 frames of 8 bytes, plus one for the drift: 392 bytes, which fits in the 147-word FIFO (588 bytes, minus a status word). Better still, with a packet every two microframes the packets always land on the same frame parity, so re-arming the endpoint is no harder than at 500 µs. Only the 24- and 32-bit formats switch to 250 µs; 16 bits stays at 500 µs, where 192 kHz already fits (97 × 4 = 388 bytes). Result: about 6,000 interrupts per second at 192 kHz, 65 µs at most, nothing dropped, and the device stays perfectly usable. Version 0.99 does 44.1 to 192 kHz in every format.
+- **Step 1 was adaptive**, not synchronous. Wrong word, same drift.
+
+Details for the brave in [docs/USB_AUDIO.md](https://github.com/berettavexee/echo-mini-newfw/blob/main/docs/USB_AUDIO.md); [v0.99 is on GitHub](https://github.com/berettavexee/echo-mini-newfw/releases/tag/v0.99).
