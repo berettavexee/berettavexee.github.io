@@ -59,7 +59,7 @@ After five or six attempts, I now have a sound card that works in 16 and 24-bit 
 
 The feedback endpoint itself was not difficult. It's an isochronous IN endpoint on a periodic TX FIFO. The format is a bit strange but well documented: a 3-byte value in 10.14 fixed point (samples per frame), sent every frame.
 
-**A Reminder About Fixed-Point Encoding:** 10.14 mean 10 bits for the integer part and 14 bits for the fractional part, for a total of 24 bits. The actual value is the integer part divided by 2¹⁴ = 16,384. In general, an **m.n** format has **m** integer bits and **n** fractional bits, and the value is the raw integer divided by 2ⁿ: 44.1 samples per frame is sent as:
+**A Reminder About Fixed-Point Encoding:** 10.14 means 10 bits for the integer part and 14 bits for the fractional part, for a total of 24 bits. The actual value is the received integer divided by 2¹⁴ = 16,384. In general, an **m.n** format has **m** integer bits and **n** fractional bits, and the value is the raw integer divided by 2ⁿ: 44.1 samples per frame is sent as:
 
 - Integer part: 44, stored in the top 10 bits: 44 × 16,384 = 720,896.
 - Fractional part: 0.1, expressed in 16,384ths: 0.1 × 16,384 = 1,638.4, rounded to 1,638.
@@ -205,6 +205,10 @@ It took less than a day for reality to review this article.
 
 - **Phones ignore the feedback.** A Pixel 6a and an iPhone read it every millisecond, then politely ignore it, whatever the format. So, "bit-perfect" holds with Linux; with phones, version 0.99 drops a sample now and then, evenly spread. Inaudible, but humbling. ([Reported to Google](https://issuetracker.google.com/issues/579970942).)
 - **192 kHz in 24 bits works.** I explained at length why a packet every 250 µs would choke the device. I had never tried it: I had jumped from one packet per microframe (which failed) straight to 500 µs. At 250 µs, 192 kHz is 48 frames of 8 bytes, plus one for the drift: 392 bytes, which fits in the 147-word FIFO (588 bytes, minus a status word). Better still, with a packet every two microframes the packets always land on the same frame parity, so re-arming the endpoint is no harder than at 500 µs. Only the 24- and 32-bit formats switch to 250 µs; 16 bits stays at 500 µs, where 192 kHz already fits (97 × 4 = 388 bytes). Result: about 6,000 interrupts per second at 192 kHz, 65 µs at most, nothing dropped, and the device stays perfectly usable. Version 0.99 does 44.1 to 192 kHz in every format.
+
+  ![UAC2 packets at 250 µs](/assets/img/echo-mini-uac2-frames-250us.svg)
+  *UAC2 at high speed in 0.99, 24 and 32 bits: an audio packet every 2 microframes, the feedback every 8.*
+
 - **Step 1 was adaptive**, not synchronous. Wrong word, same drift.
 
 Details for the brave in [docs/USB_AUDIO.md](https://github.com/berettavexee/echo-mini-newfw/blob/main/docs/USB_AUDIO.md); [v0.99 is on GitHub](https://github.com/berettavexee/echo-mini-newfw/releases/tag/v0.99).
