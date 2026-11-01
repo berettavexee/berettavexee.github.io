@@ -38,6 +38,15 @@ The difficulty is the clock. The host sends, say, 44.1 samples per millisecond o
 ![UAC1 packets at full speed](/assets/img/echo-mini-uac1-frames.svg)
 *UAC1 at full speed in asynchronous mode: one audio packet and one feedback packet per 1 ms frame.*
 
+## The architecture
+
+![The USB sound card in the ECHO MINI](/assets/img/echo-mini-usb-architecture.svg)
+*The USB sound card in the ECHO MINI: the samples come on the computer's clock, the DACs play them on the player's own clock, and the feedback keeps the two in step.*
+
+The USB controller hands each audio packet to the main core, whose interrupt handler copies it straight into a ring buffer holding about 10 ms of sound; the second core, which decodes files in normal playback, stays idle.
+A DMA channel feeds the ring to the I2S port and the two CS43131, one per channel, at a rate set by the RKNanoD's own audio PLL, not by the USB clock.
+The main core watches how full the ring is and turns that into the feedback value it sends back to the computer: that is the whole asynchronous mode.
+
 ## Step 1: UAC1 at full speed (USB 1)
 
 The USB controller is a Synopsys DWC2, which my firmware already drove for the USB disk mode. I added a generic "class" layer to the driver (descriptors, class requests, an isochronous OUT endpoint), and `uac.c` for the sound card itself: descriptors, the volume and sample-rate requests, and a copy of each packet straight into the DACs' DMA ring. No codec involved, so the second core stays asleep.
