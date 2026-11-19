@@ -11,37 +11,37 @@ tags: audio codec MDCT psychoacoustique MULE ECHO-MINI
 
 ## Tout est parti d'un baladeur à trente balles
 
-J'ai porté Ogg Vorbis et Ogg Opus sur l'Echo Mini de Snowsky, un petit baladeur audio. Sur le
+J'ai porté Ogg [Vorbis](https://fr.wikipedia.org/wiki/Vorbis) et Ogg [Opus](https://en.wikipedia.org/wiki/Opus_%28audio_format%29) sur l'Echo Mini de Snowsky, un petit baladeur audio. Sur le
 papier, c'était une formalité : prendre des bibliothèques qui tournent partout depuis quinze
 ans, les compiler, câbler l'entrée et la sortie. Dans la vraie vie, je me suis pris deux murs.
 
-Le premier : l'Echo Mini tourne sur un Cortex-M3, **sans unité de calcul en virgule flottante**.
+Le premier : l'Echo Mini tourne sur un [Cortex-M3](https://fr.wikipedia.org/wiki/ARM_Cortex-M), **sans unité de calcul en [virgule flottante](https://fr.wikipedia.org/wiki/Virgule_flottante)**.
 Pas de `float`, ou alors émulé en logiciel, c'est-à-dire à la vitesse d'un escargot.
 Le second : le cœur dédié à l'audio, le « cœur B », n'a accès directement qu'à
 **très peu de RAM**. 128 Kio pour le code, 148 Kio pour les données. Pour tout. Le décodeur,
 ses tables, ses tampons d'entrée et de sortie.
 
-Vorbis, d'abord. Il embarque des *codebooks* (des dictionnaires de quantification envoyés
+Vorbis, d'abord. Il embarque des [*codebooks*](https://fr.wikipedia.org/wiki/Quantification_vectorielle) (des dictionnaires de quantification envoyés
 dans l'en-tête de chaque fichier) et des tables d'IMDCT (la transformée inverse, on y
 reviendra) qui prennent tellement de place qu'il faut les étaler sur deux banques de mémoire.
 Il ne reste presque rien pour les tampons. Le portage d'origine trichait d'ailleurs avec
-l'option de compilation `low_memory` de Tremor, qui dégradait la qualité de façon audible.
+l'option de compilation `low_memory` de [Tremor](https://en.wikipedia.org/wiki/Tremor_%28software%29), qui dégradait la qualité de façon audible.
 
-Opus, ensuite. Pas de codebooks, mais la PVQ (*Pyramid Vector Quantization*), une technique
+Opus, ensuite. Pas de codebooks, mais la PVQ ([*Pyramid Vector Quantization*](https://en.wikipedia.org/wiki/Pyramid_vector_quantization)), une technique
 très astucieuse pour coder de façon compacte des vecteurs de dimension N et de longueur unité.
 Je vais être honnête : je n'ai pas compris grand-chose à son fonctionnement. On répartit des
 points sur une sphère de dimension N pour représenter un vecteur unitaire. Jusque-là, j'arrive à
 suivre. Puis on applique plusieurs fois le même mécanisme (*coordinate-wise power*), ce qui, au
 bout d'un moment, crée tout un tas de problèmes : des points répartis de façon pas uniforme, un
-écart entre la distance de Manhattan qu'on emploie et la distance euclidienne qu'on voudrait.
+écart entre la [distance de Manhattan](https://fr.wikipedia.org/wiki/Distance_de_Manhattan) qu'on emploie et la distance euclidienne qu'on voudrait.
 De quoi permettre à plein de gens très brillants d'écrire plein d'articles. C'est clairement
 trop compliqué pour moi : je suis trop vieux pour me souvenir de mes cours de géométrie des
-réseaux euclidiens.
+[réseaux euclidiens](https://en.wikipedia.org/wiki/Lattice_%28group%29).
 
 Dernier point : comme beaucoup de baladeurs, l'Echo Mini embarque des accélérateurs matériels.
-Il fait presque toute la synthèse d'un MP3 en matériel (on s'en fiche un peu), mais il sait
+Il fait presque toute la synthèse d'un [MP3](https://fr.wikipedia.org/wiki/MP3) en matériel (on s'en fiche un peu), mais il sait
 aussi faire des choses plus lourdes et bien plus intéressantes : des FFT, des FFT inverses et
-des IMDCT, pensées pour l'AAC et le Vorbis. Sur Tremor, l'implémentation en virgule fixe de
+des IMDCT, pensées pour l'[AAC](https://fr.wikipedia.org/wiki/Advanced_Audio_Coding) et le Vorbis. Sur Tremor, l'implémentation en virgule fixe de
 Vorbis, l'IMDCT matérielle va environ quatre fois plus vite que la logicielle. Opus, lui, n'en
 profite pas : ses trames de 20 ms font 960 échantillons à 48 kHz, ce qui demande des FFT de
 480 points, alors que l'accélérateur ne connaît que les puissances de deux. Tout se fait en
@@ -73,10 +73,10 @@ a choisi, et pourquoi**.
 ### Le besoin
 
 Un CD, c'est 1 411 kb/s : 44 100 échantillons par seconde, sur 16 bits, en stéréo. MULE vise
-128 kb/s, onze fois moins. Un compresseur sans perte comme FLAC tourne entre 600 et 900 kb/s :
+128 kb/s, onze fois moins. Un compresseur sans perte comme [FLAC](https://fr.wikipedia.org/wiki/Free_Lossless_Audio_Codec) tourne entre 600 et 900 kb/s :
 il reproduit le signal à l'identique, c'est ce qu'on appelle une compression sans perte. Pour
 diviser par onze, il faut éliminer de l'information, beaucoup d'information : c'est la
-compression avec perte. L'astuce consiste à jeter celle que l'oreille n'entendra pas. Ce n'est
+[compression avec perte](https://en.wikipedia.org/wiki/Lossy_compression). L'astuce consiste à jeter celle que l'oreille n'entendra pas. Ce n'est
 pas nouveau : le MP3 le fait depuis plus de trente ans.
 
 Un codec perceptif ne cherche donc pas à reproduire le signal. Il cherche à reproduire **ce
@@ -86,7 +86,7 @@ qu'on en perçoit**, avec trois idées :
    affaiblir une fréquence directement dans les échantillons PCM, c'est mission impossible ;
    en fréquences, c'est un coefficient à arrondir plus grossièrement.
 2. **Déterminer ce qui est masqué.** Un son fort rend inaudibles les sons faibles voisins. Le
-   modèle psychoacoustique calcule, pour chaque morceau du spectre, le niveau sous lequel
+   [modèle psychoacoustique](https://fr.wikipedia.org/wiki/Psychoacoustique) calcule, pour chaque morceau du spectre, le niveau sous lequel
    l'oreille ne remarque rien.
 3. **Maintenir l'erreur de quantification sous ce masque.** Quantifier, c'est arrondir, donc
    ajouter du bruit. Tout l'art consiste à doser cet arrondi pour que le bruit reste caché sous
@@ -94,9 +94,9 @@ qu'on en perçoit**, avec trois idées :
 
 ### Ce que font les autres
 
-Tous les codecs musicaux grand public suivent ce schéma : MP3, AAC, Vorbis, et la partie CELT
-d'Opus. Opus est en fait un hybride : il a aussi un moteur pour la parole, SILK, qui travaille
-dans le domaine temporel par prédiction linéaire, comme les codecs téléphoniques. Il s'en sert
+Tous les codecs musicaux grand public suivent ce schéma : MP3, AAC, Vorbis, et la partie [CELT](https://fr.wikipedia.org/wiki/CELT)
+d'Opus. Opus est en fait un hybride : il a aussi un moteur pour la parole, [SILK](https://en.wikipedia.org/wiki/SILK), qui travaille
+dans le domaine temporel par [prédiction linéaire](https://en.wikipedia.org/wiki/Linear_predictive_coding), comme les codecs téléphoniques. Il s'en sert
 à bas débit et pour la voix.
 
 ### Le choix de MULE
@@ -117,7 +117,7 @@ s'appellera, sans surprise, « Le cimetière des bonnes idées »).
 
 Une piste audio ne se code pas d'un bloc. On la découpe en **trames**, et on analyse chaque
 trame avec un peu de ses voisines : les analyses se recouvrent. Avant d'analyser, on multiplie
-le bloc par une **fenêtre** qui monte en douceur puis redescend, plutôt qu'une fenêtre carrée
+le bloc par une **[fenêtre](https://fr.wikipedia.org/wiki/Fen%C3%AAtrage)** qui monte en douceur puis redescend, plutôt qu'une fenêtre carrée
 qui créerait des distorsions aux jonctions.
 
 Reste à choisir la taille, et là, pas de miracle. La théorie du signal le dit : **on ne peut pas
@@ -129,7 +129,7 @@ Prenez une castagnette. Le claquement dure quelques millisecondes ; juste avant,
 silence. Si on code ce bloc en fenêtre longue, le bruit de quantification s'étale sur toute la
 fenêtre, y compris sur le silence qui précède l'attaque. Et ce bruit-là, aucun son ne le
 masque : on entend un petit souffle *avant* le coup, comme un écho qui serait arrivé en avance.
-C'est le **pré-écho**, le principal défaut des codecs à transformée. Il faut donc pouvoir
+C'est le **[pré-écho](https://en.wikipedia.org/wiki/Pre-echo)**, le principal défaut des codecs à transformée. Il faut donc pouvoir
 **changer de taille de fenêtre** quand une attaque arrive, et un détecteur pour savoir quand.
 
 ![Figure 2 : chevauchement des fenêtres de Vorbis ; la somme de leurs carrés vaut 1 partout](/assets/img/mule-fig2-fenetres.svg)
@@ -160,7 +160,7 @@ courts de 256 pour les attaques, groupés comme dans AAC. La fenêtre est celle 
 - Pas de contrainte de latence : un baladeur qui lit un fichier se moque d'avoir 23 ms de
   retard. Une grande trame avec un grand recouvrement, c'est la meilleure finesse en fréquence
   pour la musique tenue.
-- 44,1 kHz natif : le DAC de l'Echo Mini tourne à 44,1 kHz, donc pas de rééchantillonnage
+- 44,1 kHz natif : le [DAC](https://fr.wikipedia.org/wiki/Convertisseur_num%C3%A9rique-analogique) de l'Echo Mini tourne à 44,1 kHz, donc pas de rééchantillonnage
   comme avec Opus. *(48 kHz, c'est la fréquence de la vidéo et de la plupart des cartes son ; le
   CD est resté à 44,1)*
 - Des puissances de deux : c'est ce que l'accélérateur hardware sait faire pour le AAC.
@@ -201,14 +201,14 @@ et un calcul rapide.
 
 Il faut aussi regrouper les coefficients en **bandes**, parce que l'oreille ne traite pas les
 fréquences une par une. Elle sépare finement deux notes graves, et beaucoup moins finement deux
-sifflements aigus. Les acousticiens mesurent ce découpage en **Bark**, ou bandes critiques.
+sifflements aigus. Les acousticiens mesurent ce découpage en **[Bark](https://en.wikipedia.org/wiki/Bark_scale)**, ou [bandes critiques](https://en.wikipedia.org/wiki/Critical_band).
 
 ### Ce que font les autres
 
 - **MP3** fait les choses en deux temps : un banc de 32 filtres hérité du MP2, puis une MDCT dans
   chaque sous-bande. C'est un compromis historique (garder la compatibilité avec le MP2), et
   une source connue de défauts.
-- **AAC, Vorbis et CELT** utilisent une **MDCT** pure (*Modified Discrete Cosine Transform*).
+- **AAC, Vorbis et CELT** utilisent une **MDCT** pure ([*Modified Discrete Cosine Transform*](https://en.wikipedia.org/wiki/Modified_discrete_cosine_transform)).
 - Pour les bandes : MP3 a une vingtaine de bandes de facteurs d'échelle, AAC 49 en trame longue
   à 44,1 kHz. Vorbis décrit l'enveloppe du spectre par une courbe en segments (le *floor*).
   CELT utilise 21 bandes calquées sur les Bark.
@@ -221,7 +221,7 @@ coefficients, un par « raie » de fréquence, espacées de 21,5 Hz.
 Oui, vous avez bien lu : 2 048 en entrée, 1 024 en sortie. On perd la moitié de l'information
 à chaque bloc. Le miracle, c'est que cette perte est rattrapée par le recouvrement : les
 erreurs qu'introduit un bloc sont exactement annulées par celles, opposées, du bloc voisin.
-Les spécialistes appellent ça le TDAC (*Time-Domain Aliasing Cancellation*). 
+Les spécialistes appellent ça le TDAC ([*Time-Domain Aliasing Cancellation*](https://en.wikipedia.org/wiki/Modified_discrete_cosine_transform#Time-domain_aliasing_cancellation)). 
 
 Pourquoi recouvrir à 50 % ? Si on codait des blocs bord à bord, chacun aurait son propre bruit
 de quantification, et ce bruit changerait brutalement à chaque jonction : un petit clic toutes
@@ -230,7 +230,7 @@ on passe d'un bloc à l'autre en fondu. Des gens plus malins que moi ont trouvé
 doit remplir la fenêtre pour que la reconstruction reste parfaite (la somme des carrés qui vaut
 1, figure 2) : c'est pour ça qu'on n'utilise pas une fenêtre carrée.
 
-Pourquoi pas une bonne vieille FFT (*Fast Fourier Transform*) ? Elle donne des nombres
+Pourquoi pas une bonne vieille FFT ([*Fast Fourier Transform*](https://fr.wikipedia.org/wiki/Transformation_de_Fourier_rapide)) ? Elle donne des nombres
 complexes, avec une partie réelle et une partie imaginaire. Avec un recouvrement de moitié, on
 coderait deux fois plus de nombres qu'il n'y a d'échantillons. La MDCT recouvre sans rien coder
 en double. Bonus pour mon baladeur : une
@@ -253,7 +253,7 @@ Dans chaque bande, il faut transmettre le niveau (combien d'énergie) et le dét
 le détail est grossier (les raies un peu à côté de leur vraie valeur), ça passe souvent
 inaperçu, surtout dans les aigus. Mais si l'énergie d'une bande est fausse (un trou, une
 bosse), ça s'entend tout de suite : le timbre change, le son devient « creux » ou
-« métallique ». C'est la même chose pour la compression d'image, si la teinte est un peu grossière
+« métallique ». C'est la même chose pour la compression d'image, si la [teinte est un peu grossière](https://en.wikipedia.org/wiki/Chroma_subsampling)
 cela ne se voit presque pas, alors qu'un défaut de luminosité ou de contraste saute aux yeux.
 
 ### Ce que font les autres
@@ -314,7 +314,7 @@ Son travail : pour chaque bande de chaque trame, dire **combien de bruit on peut
 personne ne s'en rende compte** ou à quel point on peut **dégrader le signal dans cette zone sans 
 que cela ne soit audible**.
 
-Il repose d'abord sur le **masquage simultané**. Un son fort rend inaudibles les sons plus
+Il repose d'abord sur le **[masquage simultané](https://en.wikipedia.org/wiki/Auditory_masking)**. Un son fort rend inaudibles les sons plus
 faibles de fréquence voisine. Une grosse caisse noie le petit bruit de fond dans les graves ;
 une cymbale cache une foule de détails dans les aigus. Ce masquage déborde de part et d'autre
 de la fréquence du son masquant, avec une pente asymétrique : il s'étend plus vers les aigus
@@ -324,14 +324,14 @@ Ensuite vient la **tonalité**. Un son pur masque *moins bien* qu'un bruit de m�
 l'oreille repère facilement un petit bruit parasite à côté d'une flûte, beaucoup moins à côté 
 d'une cymbale.
 
-Enfin, il y a le **seuil absolu d'audition** : en dessous d'un certain niveau, on n'entend rien
+Enfin, il y a le **[seuil absolu d'audition](https://fr.wikipedia.org/wiki/Seuil_absolu_d'audition)** : en dessous d'un certain niveau, on n'entend rien
 du tout, masque ou pas.
 
 ### Ce que font les autres
 
 - **MP3 et AAC** : la norme décrit deux modèles, dits 1 et 2, mais seulement à titre
   d'exemple : le modèle psychoacoustique n'est pas normatif, chaque encodeur fait ce qu'il veut.
-  LAME, l'encodeur MP3 libre, a le sien, réglé à l'oreille pendant des années.
+  [LAME](https://fr.wikipedia.org/wiki/LAME), l'encodeur MP3 libre, a le sien, réglé à l'oreille pendant des années.
 - **Vorbis** : un modèle dans l'encodeur, avec des courbes de masquage différentes pour les sons
   tonals et pour le bruit.
 - **Opus** n'a pas de masque explicite. C'est la conservation de l'énergie par bande, une table
@@ -341,7 +341,7 @@ du tout, masque ou pas.
 
 **Un masque explicite, calculé bande par bande, dans la tradition d'AAC.** Le débordement d'une
 bande sur l'autre suit la fonction d'étalement classique de Schroeder, qui date de 1979. Rien de
-neuf sous le soleil. La tonalité se mesure par la « platitude » du spectre de chaque bande :
+neuf sous le soleil. La tonalité se mesure par la « [platitude](https://en.wikipedia.org/wiki/Spectral_flatness) » du spectre de chaque bande :
 plate, c'est du bruit ; avec un pic net, c'est un son tonal. Selon le cas, le seuil de masquage
 est placé 5,5 dB sous l'énergie (bruit) ou bien plus bas, jusqu'à 25 dB (tonal).
 
@@ -413,7 +413,7 @@ manière très automatisée avec Python et Claude Code.*
 
 Ensuite vient la quantification proprement dite. MULE n'arrondit pas bêtement chaque
 coefficient : il utilise une **quantification en treillis** (TCQ), une technique empruntée à
-JPEG 2000 qui divise le pas par deux sans payer le bit supplémentaire. C'est le gain le plus
+[JPEG 2000](https://fr.wikipedia.org/wiki/JPEG_2000) qui divise le pas par deux sans payer le bit supplémentaire. C'est le gain le plus
 important du projet, et ça mérite un billet entier, le deuxième. Pour l'instant, retenez juste
 qu'elle existe et qu'elle est géniale.
 
@@ -421,11 +421,11 @@ Le calcul « pas idéal = masque » est un point de départ, pas une vérité. P
 d'une unité plus faible coûte beaucoup moins de bits pour un bruit à peine plus fort ; parfois,
 c'est l'inverse. L'encodeur essaie donc, pour chaque bande, l'allocation calculée et ses deux
 voisines, et garde celle qui minimise « bruit + λ × bits ». C'est le compromis
-**débit-distorsion**, la même idée que dans les encodeurs vidéo. λ dit combien un bit vaut en
+**[débit-distorsion](https://en.wikipedia.org/wiki/Rate%E2%80%93distortion_theory)**, la même idée que dans les encodeurs vidéo. λ dit combien un bit vaut en
 bruit. Et MULE compte les **vrais** bits, avec les mêmes modèles de probabilité que le codeur
 entropique qui viendra juste après.
 
-Dernière chose : MULE est un codec **à débit variable**. Chaque trame vise la même qualité
+Dernière chose : MULE est un codec **[à débit variable](https://en.wikipedia.org/wiki/Variable_bitrate)**. Chaque trame vise la même qualité
 perçue, c'est-à-dire le même rapport entre bruit et masque, et prend les bits dont elle a besoin.
 Un passage calme coûte peu, une batterie saturée coûte cher. Le réservoir de bits d'AAC n'a pas
 de sens ici : on encode un fichier, personne n'attend un débit constant. J'ai testé des
@@ -448,7 +448,7 @@ même information.
 
 ### Ce que font les autres
 
-La parade classique est le codage **M/S** : au lieu de gauche et droite, on code le **milieu**
+La parade classique est le codage **[M/S](https://en.wikipedia.org/wiki/Joint_encoding)** : au lieu de gauche et droite, on code le **milieu**
 (M, la somme) et le **côté** (S, la différence). Quand les deux canaux se ressemblent, S est
 presque nul et ne coûte presque rien.
 
@@ -458,7 +458,7 @@ presque nul et ne coûte presque rien.
   dans les aigus.
 - **Opus** code M et S avec un angle par bande qui règle leur part respective.
 
-Pour les bas débits, AAC et Opus ont aussi la **stéréo d'intensité** : dans les aigus, on ne
+Pour les bas débits, AAC et Opus ont aussi la **[stéréo d'intensité](https://en.wikipedia.org/wiki/Joint_encoding#Intensity_stereo)** : dans les aigus, on ne
 code qu'un canal et un angle, et le décodeur reconstruit la stéréo.
 
 ### Le choix de MULE, et pourquoi
@@ -482,17 +482,17 @@ longueur 1, il faut bien dire comment l'énergie se partage entre eux.
 
 À ce stade, la trame est devenue une suite de petits nombres : le type de bloc, les choix
 stéréo, les énergies, les allocations, les coefficients quantifiés et leurs signes. Il reste à
-les écrire avec le moins de bits possible : c'est le travail du **codeur entropique**. Un symbole
+les écrire avec le moins de bits possible : c'est le travail du **[codeur entropique](https://fr.wikipedia.org/wiki/Codage_entropique)**. Un symbole
 fréquent doit coûter une fraction de bit ; un symbole rare en coûte plusieurs. Puis il faut
 ranger les trames dans un fichier, et pouvoir sauter n'importe où dedans.
 
 ### Ce que font les autres
 
-- **MP3 et AAC** : des tables de Huffman fixes, gravées dans la norme.
+- **MP3 et AAC** : des tables de [Huffman](https://fr.wikipedia.org/wiki/Codage_de_Huffman) fixes, gravées dans la norme.
 - **Vorbis** : du Huffman aussi, mais les tables (les codebooks) sont dans l'en-tête de chaque
   fichier. Souple, mais il faut les charger en RAM.
-- **Opus** : un codeur arithmétique (*range coder*), avec des probabilités fixes.
-- **AV1**, le codec vidéo, utilise un codeur arithmétique dont les probabilités **s'adaptent**
+- **Opus** : un [codeur arithmétique](https://fr.wikipedia.org/wiki/Codage_arithm%C3%A9tique) ([*range coder*](https://en.wikipedia.org/wiki/Range_coding)), avec des probabilités fixes.
+- **[AV1](https://fr.wikipedia.org/wiki/AV1)**, le codec vidéo, utilise un codeur arithmétique dont les probabilités **s'adaptent**
   au fil du flux.
 - Côté conteneur, le MP3 aligne ses trames à la suite, AAC vit dans du MP4 (ou de l'ADTS), Vorbis
   et Opus dans de l'Ogg.
@@ -504,7 +504,7 @@ dans le fichier, c'est qu'on peut changer l'encodeur sans toucher au décodeur.
 
 ### Le choix de MULE, et pourquoi
 
-**Un codeur rANS** (une variante de l'*Asymmetric Numeral System* de Jarek Duda) **et
+**Un codeur rANS** (une variante de l'[*Asymmetric Numeral System*](https://en.wikipedia.org/wiki/Asymmetric_numeral_systems) de Jarek Duda) **et
 134 modèles de probabilité qui s'adaptent au fil du morceau, à la manière d'AV1.** Les tables
 de départ sont apprises sur un corpus et tiennent dans le décodeur : rien à charger par fichier,
 contrairement à Vorbis. Le décodeur rANS se réduit à quelques multiplications et décalages
@@ -514,10 +514,10 @@ billet lui sera consacré.
 
 Les trames sont groupées par **paquets de 4**. Toutes les 40 trames (0,93 s), un **paquet clé**
 remet les modèles de probabilité à zéro : c'est ce qui permet de sauter n'importe où dans un
-morceau sans tout décoder depuis le début. Les paquets sont rangés dans un conteneur **Ogg**,
+morceau sans tout décoder depuis le début. Les paquets sont rangés dans un conteneur **[Ogg](https://fr.wikipedia.org/wiki/Ogg)**,
 exactement comme Vorbis et Opus. Le lecteur de l'Echo Mini et la plupart des firmwares alternatifs
 savent lire les conteneurs Ogg, et Ogg apporte gratuitement les métadonnées et la
-**lecture sans blanc** entre les pistes d'un album live. Merci Xiph.
+**[lecture sans blanc](https://en.wikipedia.org/wiki/Gapless_playback)** entre les pistes d'un album live. Merci Xiph.
 
 ## Le décodeur, en miroir
 
@@ -547,7 +547,7 @@ pas : il lit. Pas de modèle psychoacoustique, aucune décision à prendre. Il d
 reconstruit les coefficients (en remplissant de bruit les bandes sans bits), défait le M/S,
 applique la MDCT inverse et recolle les fenêtres.
 
-D'où une asymétrie énorme. L'encodeur, en virgule flottante, avec son Viterbi et ses
+D'où une asymétrie énorme. L'encodeur, en virgule flottante, avec son [Viterbi](https://fr.wikipedia.org/wiki/Algorithme_de_Viterbi) et ses
 allers-retours débit-distorsion, tourne quatre à six fois plus vite que le temps réel sur un
 PC. Le décodeur tourne sur le baladeur à environ **59 MHz** en moyenne, dans 30 Kio de code et
 de tables, **sans jamais toucher un nombre à virgule flottante**. Tout est en entiers, et la sortie est
@@ -559,7 +559,7 @@ version du décodeur à tester, et un test qui se résume à comparer deux fichi
 
 Évidemment, la vraie question : est-ce que ça marche ? Voici MULE face aux trois codecs qu'il
 pille allègrement, sur 30 extraits tirés au hasard de ma bibliothèque et jamais utilisés pour les réglages,
-à débit égal. L'ODG est la note de PEAQ, un modèle d'écoute normalisé : 0, on n'entend pas de
+à débit égal. L'ODG est la note de [PEAQ](https://en.wikipedia.org/wiki/Perceptual_Evaluation_of_Audio_Quality), un modèle d'écoute normalisé : 0, on n'entend pas de
 différence avec l'original ; −1, c'est audible mais pas gênant. ViSQOL note de 1 à 5.
 
 | | ODG à 128 kb/s | ODG à 160 kb/s | ODG avancé, 128 / 160 | ViSQOL à 128 kb/s |
@@ -570,7 +570,7 @@ différence avec l'original ; −1, c'est audible mais pas gênant. ViSQOL note 
 | MULE | −0,17 | −0,01 | **−0,36 / −0,14** | **4,61** |
 
 
-L'AAC vient de FDK-AAC, l'encodeur de Fraunhofer (celui d'Android), en AAC-LC à débit constant et réglages par défaut. Sa dernière place est en partie un choix : il coupe tout au-dessus de
+L'AAC vient de [FDK-AAC](https://en.wikipedia.org/wiki/Fraunhofer_FDK_AAC), l'encodeur de Fraunhofer (celui d'Android), en AAC-LC à débit constant et réglages par défaut. Sa dernière place est en partie un choix : il coupe tout au-dessus de
 16 kHz environ, quand les trois autres montent à 20 kHz. Il met ses bits là où l'oreille d'un adulte les entend vraiment, et PEAQ et ViSQOL le lui font payer sans doute plus cher que vos
 oreilles. L'encodeur AAC d'Apple, réputé meilleur, ne tourne que sous Windows et macOS *(flemme de faire tourner dans wine)*.
 
@@ -579,10 +579,10 @@ oreilles. L'encodeur AAC d'Apple, réputé meilleur, ne tourne que sous Windows 
 Soyons honnêtes : Opus reste devant sur la note de base de PEAQ. MULE passe devant sur la
 version avancée de PEAQ et sur ViSQOL, et il enterre Vorbis et FDK-AAC partout. Mais regardez les
 écarts : on se bat pour des centièmes, dans la zone où PEAQ lui-même dit « imperceptible ». Et
-en écoute à l'aveugle (16 essais par extrait, sur les six extraits où PEAQ voyait le plus grand
+en [écoute à l'aveugle](https://fr.wikipedia.org/wiki/Test_ABX) (16 essais par extrait, sur les six extraits où PEAQ voyait le plus grand
 écart), je n'ai su distinguer MULE à 128 kb/s ni de l'original, ni d'Opus. Mes oreilles sont
 probablement nulles. C'est une hypothèse sérieuse, et j'y reviendrai dans un autre billet.
-Mais même les aficionados de Hydrogenaudio, sont mis en difficulté sur les tests ABX de codec
+Mais même les aficionados de [Hydrogenaudio](https://en.wikipedia.org/wiki/Hydrogenaudio), sont mis en difficulté sur les tests ABX de codec
 moderne comme Opus, Vorbis et AAC.
 
 On triche : MULE ne fonctionne qu'à 44,1 kHz et en 16 bits, parce que c'est le format du CD.
