@@ -82,7 +82,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (min-width: 56em) {
   .container {
-    max-width: 38rem;
+    max-width: 44rem;
+  }
+}
+
+/* Figures wider than the text on large screens, centred on the column; vector figures
+   (SVG) take the full width, photos keep their natural size */
+@media (min-width: 64em) {
+  .post img {
+    max-width: min(56rem, calc(100vw - 4rem));
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+  .post img[src$=".svg"] {
+    width: min(56rem, calc(100vw - 4rem));
   }
 }
 
