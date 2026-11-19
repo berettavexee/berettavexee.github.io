@@ -61,7 +61,8 @@ défi un peu idiot d'écrire mon propre codec audio. Avec un cahier des charges 
   performances de Vorbis et celles d'Opus.
 
 Pour rigoler, je l'ai appelé MULE : c'est un hybride de Vorbis, d'Opus et d'AAC. Comme une
-mule, c'est petit, têtu, et ça n'aura pas de descendance.
+mule, c'est petit, têtu, et ça n'aura pas de descendance. Le code, la spécification du format
+et toutes les mesures sont sur GitHub : [berettavexee/mule-audio](https://github.com/berettavexee/mule-audio).
 
 Dans ce billet, on va suivre **une seule trame** de musique (23 millisecondes de son) depuis le
 fichier WAV jusqu'au paquet compressé. Pour chaque étage, trois questions : **de quoi un codec
@@ -600,6 +601,7 @@ un seul usage, sans les contraintes de latence, de réseau ou de brevets qu'Opus
 respecter. Le génie d'Opus ou d'AAC n'est pas dans une idée géniale cachée, il est dans dix ans
 de réglages, de mesures et d'écoutes. Si vous voulez un bon codec : **utilisez Opus**. Si vous
 voulez comprendre comment fonctionne un codec, en concevoir un vous-même, même mauvais, est une
-excellente école.
+excellente école. Tout le code est sur [GitHub](https://github.com/berettavexee/mule-audio), y compris les idées qui n'ont pas
+marché, avec leurs chiffres.
 
 Au prochain épisode : la quantification en treillis.
