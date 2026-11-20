@@ -219,19 +219,22 @@ sifflements aigus. Les acousticiens mesurent ce découpage en **[Bark](https://e
 **Une MDCT pure, comme AAC, Vorbis et CELT.** Elle prend 2 048 échantillons et en sort 1 024
 coefficients, un par « raie » de fréquence, espacées de 21,5 Hz.
 
-Une **raie**, c'est l'un de ces coefficients : un nombre qui dit combien il y a de son autour
-d'une fréquence précise. La raie 0 couvre les fréquences de 0 à 21,5 Hz, la raie 1 de 21,5 à
-43 Hz, et ainsi de suite jusqu'à la raie 1 023, vers 22 kHz. Dessinées côte à côte, elles
-forment un peigne : une note y apparaît comme une série de pics, un par harmonique (figure 5),
-et un bruit comme une herbe drue partout. Une note pure n'allume pas une seule raie, mais deux ou
-trois voisines : c'est le prix de la fenêtre. Le mot vient de la spectroscopie, où chaque
-couleur présente dans une lumière dessine une raie sur le spectre. Et 21,5 Hz, c'est
-44 100 / 2 048 : plus la fenêtre est longue, plus les raies sont serrées, c'est tout le dilemme
-de la figure 3.
+> Une **raie**, c'est l'un de ces coefficients : un nombre qui dit combien il y a de son autour
+> d'une fréquence précise. La raie 0 couvre les fréquences de 0 à 21,5 Hz, la raie 1 de 21,5 à
+> 43 Hz, et ainsi de suite jusqu'à la raie 1 023, vers 22 kHz. Dessinées côte à côte, elles
+> forment un peigne : une note y apparaît comme une série de pics, un par harmonique (figure 5),
+> et un bruit comme une herbe drue, partout sur le graphique. Une note pure n'allume pas une
+> seule raie, mais deux ou trois voisines. Si on avait une résolution infinie en fréquence, il
+> n'y aurait qu'un pic, à la fréquence exacte. Avec une fenêtre de 46 ms, chaque note s'étale
+> un peu sur ses voisines.
+>
+> Le terme vient de la spectroscopie, où chaque couleur présente dans une lumière dessine
+> une raie sur le spectre. Et 21,5 Hz, c'est 44 100 / 2 048 : plus la fenêtre est longue,
+> plus les raies sont serrées, c'est tout le dilemme de la figure 3.
 
 ![Figure 5 : un bloc de 2 048 échantillons d'une note synthétique à 220 Hz, et ses 64 premières raies MDCT : un pic par harmonique ; en gris, les groupes de 8 raies qui forment les bandes graves de MULE](/assets/img/mule-fig5-raies.svg)
 
-Oui, vous avez bien lu : 2 048 en entrée, 1 024 en sortie. On perd la moitié de l'information
+Revenons à nos échantillons 2 048 en entrée, 1 024 en sortie. On perd la moitié de l'information
 à chaque bloc. Le miracle, c'est que cette perte est rattrapée par le recouvrement : les
 erreurs qu'introduit un bloc sont exactement annulées par celles, opposées, du bloc voisin.
 Les spécialistes appellent ça le TDAC ([*Time-Domain Aliasing Cancellation*](https://en.wikipedia.org/wiki/Modified_discrete_cosine_transform#Time-domain_aliasing_cancellation)). 
@@ -271,10 +274,13 @@ informations (énergie, allocation) coûtent peu.
 > l'autre, il n'y aurait rien de stable à apprendre. Et la grille se compte en unités de
 > 8 raies : en blocs courts, une unité vaut une raie par fenêtre, si bien qu'une bande a le
 > même nombre de coefficients en trame longue et en trame courte, et partage ses tables.
+> C'est aussi pour cela que les bandes ne sont pas exactement calées sur l'échelle de Bark.
 >
-> La finesse que Vorbis s'offre avec sa géométrie, MULE la récupère côté encodeur : les masques
-> calculés raie par raie dans les graves donnent de la résolution là où elle compte, sans rien
-> changer au format. Des bandes plus fines dans les aigus n'auraient pas aidé, puisque le bruit
+> Vorbis lui-même a abandonné son premier *floor* (floor 0) pour une version plus simple
+> (floor 1), et le mécanisme n'a été repris ni par Opus, ni par aucun autre codec grand public.
+> La finesse que Vorbis s'offre avec sa géométrie, MULE la récupère côté encodeur, en utilisant
+> des masques calculés à l'échelle de la raie dans les graves : ils donnent de la résolution là
+> où elle compte, sans rien changer au format. Des bandes plus fines dans les aigus n'auraient pas aidé, puisque le bruit
 > de MULE y est déjà sous celui d'Opus, et changer leur résolution dans le temps a rapporté
 > +0,003 d'ODG. Autant dire rien.
 
@@ -324,8 +330,14 @@ prédiction. Le troisième billet racontera comment on grappille les bits là-de
 
 > **Encadré : et si une bande n'a droit à aucun bit ?**
 >
-> Ça arrive : quand une bande est entièrement sous le masque, inutile de coder sa forme. Mais la
-> laisser vide créerait un trou dans le spectre, et un trou, ça s'entend.
+> Ça arrive quand le bruit qu'on a le droit d'ajouter dans une bande dépasse l'énergie de la
+> bande elle-même. Autrement dit, on pourrait remplacer tout son contenu par du bruit au même
+> niveau sans que l'oreille s'en aperçoive : coder sa forme ne servirait à rien. Ce sont surtout
+> des bandes dont le signal ressemble déjà à un bruit blanc (une cymbale, le souffle d'un
+> enregistrement, l'extrême aigu) : un bruit masque bien mieux qu'un son pur, et l'oreille
+> entend de moins en moins au-dessus de 16 kHz. Une bande tonale n'y tombe presque jamais :
+> remplacer une note par du bruit, ça s'entend. Mais laisser la bande vide créerait un trou dans
+> le spectre, et un trou, ça s'entend aussi.
 >
 > - **MP3** laisse le trou.
 > - **AAC** peut remplacer une bande par du bruit, si l'encodeur le signale (le *PNS*), et ses
