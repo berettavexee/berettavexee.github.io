@@ -190,6 +190,8 @@ Nos deux coefficients s'écrivent donc « symbole 1, bit de signe 1 », puis « 
 signe 1 » : sur la règle impaire, même l'index 0 a son signe. Et ces bits de signe pèsent lourd :
 près d'un tiers du flux sur l'extrait d'ABBA du premier billet (figure 9).
 
+![Rappel de la figure 3 : le treillis à 8 états ; en gras, le chemin des premiers coefficients, celui que suit la figure 5](/assets/img/mule-b2-fig3-treillis.svg)
+
 ![Figure 5 : ce que le décodeur lit pour les quatre premiers coefficients de la figure 4 ; l'état impose la règle, le fichier ne contient qu'un index et un signe, et la famille de la valeur lue donne l'état suivant](/assets/img/mule-b2-fig5-fichier.svg)
 
 Le choix de la branche est donc contenu dans la valeur elle-même : choisir −D plutôt que 0 ou −2D,
