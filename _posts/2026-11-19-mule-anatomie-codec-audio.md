@@ -620,7 +620,8 @@ différence avec l'original ; −1, c'est audible mais pas gênant. ViSQOL note 
 
 L'AAC vient de [FDK-AAC](https://en.wikipedia.org/wiki/Fraunhofer_FDK_AAC), l'encodeur de Fraunhofer (celui d'Android), en AAC-LC à débit constant et réglages par défaut. Sa dernière place est en partie un choix : il coupe tout au-dessus de
 16 kHz environ, quand les trois autres montent à 20 kHz. Il met ses bits là où l'oreille d'un adulte les entend vraiment, et PEAQ et ViSQOL le lui font payer sans doute plus cher que vos
-oreilles. L'encodeur AAC d'Apple, réputé meilleur, ne tourne que sous Windows et macOS *(flemme de faire tourner dans wine)*.
+oreilles. Son mode à débit variable ne fait pas mieux : à débit égal, PEAQ préfère même le
+débit constant. L'encodeur AAC d'Apple, réputé meilleur, ne tourne que sous Windows et macOS *(flemme de faire tourner dans wine)*.
 
 ![Figure 11 : la note PEAQ en fonction du débit réel, pour MULE, Opus, Vorbis et FDK-AAC](/assets/img/mule-fig11-courbes.svg)
 
