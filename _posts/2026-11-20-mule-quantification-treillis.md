@@ -159,6 +159,48 @@ Sur mon corpus de réglage :
   niveaux bon marché, quitte à s'éloigner du signal, et sur un son tonal, un partiel qui disparaît
   ou qui change de niveau, ça s'entend.
 
+### Ce qui est vraiment écrit dans le fichier
+
+Reste une question que je me suis posée tard, et que vous vous posez peut-être : à chaque
+coefficient, le Viterbi choisit une branche parmi deux. Comment le décodeur connaît-il ces choix ?
+Il faudrait les lui envoyer, un bit par coefficient, non ?
+
+Non : **les choix ne sont jamais écrits**. Ce qui est écrit, c'est la valeur de chaque
+coefficient, exactement comme avec le scalaire : un index dans la règle en cours, et un signe.
+Prenons les deux premiers coefficients de la figure 4. Le treillis part de l'état 0, qui est
+pair : on est sur la règle paire, dont les graduations sont 0, ±D, ±2D… L'encodeur écrit « index 1,
+négatif », et le décodeur lit −D. Or −D appartient à la famille D2 (les multiples impairs de D), et
+c'est la famille qui désigne la branche : la machine passe dans l'état 1. État impair, donc règle
+impaire, graduations ±D/2, ±3D/2… L'encodeur écrit « index 0, négatif » : le décodeur lit −D/2,
+famille D3, et la machine passe dans l'état 3. Et ainsi de suite, coefficient après coefficient :
+c'est le chemin dessiné en gras sur la figure 3.
+
+Concrètement, chaque coefficient occupe dans le fichier, dans l'ordre :
+
+- **un symbole d'index**, de 0 à 6, compressé par le codeur entropique avec un modèle qui dépend
+  des deux coefficients précédents (ce sera le billet 3). Sur la règle paire, l'index u vaut u·D ;
+  sur la règle impaire, (u + ½)·D. Le symbole 7 sert d'échappement pour les grands index : il est
+  suivi de leur longueur, puis de quelques bits bruts ;
+- **le signe, sur un bit brut** (1 pour négatif), qui n'est pas compressé : un coefficient de la
+  MDCT a autant de chances d'être positif que négatif, il n'y a rien à gagner. Sur la règle paire,
+  il n'est écrit que si l'index n'est pas nul, puisque zéro n'a pas de signe ; sur la règle
+  impaire, il est toujours écrit, puisque son plus petit niveau est déjà ±D/2.
+
+Nos deux coefficients s'écrivent donc « symbole 1, bit de signe 1 », puis « symbole 0, bit de
+signe 1 » : sur la règle impaire, même l'index 0 a son signe. Et ces bits de signe pèsent lourd :
+près d'un tiers du flux sur l'extrait d'ABBA du premier billet (figure 9).
+
+![Figure 5 : ce que le décodeur lit pour les quatre premiers coefficients de la figure 4 ; l'état impose la règle, le fichier ne contient qu'un index et un signe, et la famille de la valeur lue donne l'état suivant](/assets/img/mule-b2-fig5-fichier.svg)
+
+Le choix de la branche est donc contenu dans la valeur elle-même : choisir −D plutôt que 0 ou −2D,
+c'est à la fois choisir une valeur et choisir un chemin. Et cette valeur, il faut l'envoyer de
+toute façon. Elle coûte le prix d'un index sur une règle au pas D, c'est-à-dire ce que paie le
+quantificateur scalaire, et le codeur entropique (billet 3) la compresse de la même façon. Le
+chemin du Viterbi ne coûte donc pas un bit par choix : il ne coûte rien. À un détail près, on vient
+de le voir : sur la règle impaire, le signe est toujours payé. C'est pour ça que le Viterbi compte les
+bits dans son coût, et pas seulement l'erreur : quand il hésite entre deux chemins, il compare le
+prix des valeurs qu'ils imposent, puisque le chemin lui-même est gratuit.
+
 ## Ce que ça a rapporté : le format v2
 
 Au départ, MULE n'avait pas de TCQ. Mes notes de conception proposaient trois quantificateurs
@@ -183,7 +225,7 @@ d'Opus est imbuvable. J'ai essayé de lire deux ou trois papiers sur le sujet, m
 rendre à l'évidence : je suis incapable de comprendre suffisamment la PVQ pour la configurer. En
 plus, elle perdait face à la TCQ.
 
-![Figure 5 : la note PEAQ à 128 et 160 kb/s du quantificateur scalaire, de la TCQ et de la PVQ, face à Opus et Vorbis, sur le corpus de réglage (66 extraits), le seul où les trois quantificateurs ont été mesurés ensemble](/assets/img/mule-b2-fig5-v2.svg)
+![Figure 6 : la note PEAQ à 128 et 160 kb/s du quantificateur scalaire, de la TCQ et de la PVQ, face à Opus et Vorbis, sur le corpus de réglage (66 extraits), le seul où les trois quantificateurs ont été mesurés ensemble](/assets/img/mule-b2-fig6-v2.svg)
 
 La TCQ est devenue le seul quantificateur du format v2. 
 
@@ -211,14 +253,14 @@ ouvrir tous ses chemins : dans une bande de 8, c'est presque toute la bande ; su
 entière, c'est négligeable, et les états supplémentaires offrent à l'encodeur bien plus de
 chemins entre lesquels choisir. Le simulateur donnait +0,17 dB à 32 états, +0,23 dB à 64.
 
-![Figure 6 : le gain du treillis sur le quantificateur scalaire selon le nombre d'états, avec redémarrage à chaque bande et en chaîne sur la trame (simulateur, 1,25 bit par coefficient)](/assets/img/mule-b2-fig6-simulateur.svg)
+![Figure 7 : le gain du treillis sur le quantificateur scalaire selon le nombre d'états, avec redémarrage à chaque bande et en chaîne sur la trame (simulateur, 1,25 bit par coefficient)](/assets/img/mule-b2-fig7-simulateur.svg)
 
 Dans le codec, sur le corpus de réglage, le gain monte avec le nombre d'états, de moins en moins
 vite : +0,015 d'ODG à 8 états en chaîne, +0,026 à 16, +0,037 à 32, +0,040 à 64. Confirmé sur les
 extraits de test : **+0,036 à 128 kb/s** pour le format v3, toutes les mesures sont concordantes. 
 Le plus gros gain de l'encodeur depuis le passage à la TCQ.
 
-![Figure 7 : le gain en ODG dans le codec selon le nombre d'états du treillis en chaîne](/assets/img/mule-b2-fig7-etats.svg)
+![Figure 8 : le gain en ODG dans le codec selon le nombre d'états du treillis en chaîne](/assets/img/mule-b2-fig8-etats.svg)
 
 J'ai évidemment essayé 48 états, parce que pourquoi pas, et parce qu'entre 32 et 64 il y avait
 peut-être un compromis. Il n'y en avait pas : 48 états font moins bien que 32 (+0,12 dB contre
