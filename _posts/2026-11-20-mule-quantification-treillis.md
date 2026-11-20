@@ -13,19 +13,19 @@ tags: audio codec TCQ treillis Viterbi quantification MULE
 
 Dans le [premier billet](https://berettavexee.github.io/2026/11/19/mule-anatomie-codec-audio/),
 on a vu qu'un codec ne cherche pas à reproduire le signal : il cherche à cacher son erreur sous
-le seuil de masquage. Cette erreur vient d'un geste tout bête : **arrondir**. Chaque coefficient
-de la MDCT est remplacé par le multiple d'un pas D le plus proche, et l'écart moyen entre les
+le [seuil de masquage](https://en.wikipedia.org/wiki/Auditory_masking). Cette erreur vient d'un geste tout bête : **arrondir**. Chaque coefficient
+de la [MDCT](https://en.wikipedia.org/wiki/Modified_discrete_cosine_transform) est remplacé par le multiple d'un pas D le plus proche, et l'écart moyen entre les
 deux vaut à peu près D²/12. Diviser le pas par deux enlève 6 dB de bruit, et coûte en échange
 environ un bit de plus par coefficient. Il n'y a pas de repas gratuit.
 
 Sauf qu'il y en a un, presque. Il s'appelle la **quantification codée en treillis**, ou TCQ
 (*Trellis-Coded Quantization*), et il gagne de la précision en piochant dans une grille deux
-fois plus fine, tout en ne payant que le pas entier. Dans MULE, c'est l'idée qui a le plus rapporté : +0,06 d'ODG quand elle
+fois plus fine, tout en ne payant que le pas entier. Dans MULE, c'est l'idée qui a le plus rapporté : +0,06 d'[ODG](https://en.wikipedia.org/wiki/Perceptual_Evaluation_of_Audio_Quality) quand elle
 est arrivée, puis encore +0,036 quand je l'ai poussée plus loin. À titre de comparaison, la
 plupart des idées du projet se battent pour quelques millièmes.
 
 Le plus vexant, c'est que je ne l'ai pas inventée. Elle a plus de trente ans, elle vient des
-modems, elle dort dans une partie optionnelle de JPEG 2000 que personne n'utilise, et à ma
+modems, elle dort dans une partie optionnelle de [JPEG 2000](https://fr.wikipedia.org/wiki/JPEG_2000) que personne n'utilise, et à ma
 connaissance aucun codec audio grand public ne s'en sert. Ce billet raconte comment elle marche,
 sans maths lourdes, et ce qu'elle a donné.
 
@@ -38,16 +38,16 @@ regarder ses voisins, et le décodeur n'a qu'une multiplication à faire.
 
 ![Figure 1 : le quantificateur scalaire, une règle graduée au pas D ; chaque valeur est remplacée par la graduation la plus proche, et l'erreur reste entre −D/2 et +D/2](/assets/img/mule-b2-fig1-scalaire.svg)
 
-C'est simple, et c'est presque optimal. Presque. La théorie de l'information dit qu'en
+C'est simple, et c'est presque optimal. Presque. La [théorie de l'information](https://fr.wikipedia.org/wiki/Th%C3%A9orie_de_l'information) dit qu'en
 quantifiant **plusieurs nombres ensemble** plutôt qu'un par un, on peut faire mieux, et elle dit
 même de combien : à haut débit, au plus 1,53 dB de bruit en moins pour le même nombre de bits.
 On appelle ça le gain de granularité. L'intuition : une règle graduée découpe l'espace en petits
 cubes, et les cubes sont une façon assez maladroite de paver l'espace. En dimension 2, des
-hexagones (les alvéoles d'une ruche) font mieux que des carrés ; en dimension 8 ou 24, il existe
+[hexagones](https://fr.wikipedia.org/wiki/Pavage_hexagonal) (les alvéoles d'une ruche) font mieux que des carrés ; en dimension [8](https://en.wikipedia.org/wiki/E8_lattice) ou [24](https://fr.wikipedia.org/wiki/R%C3%A9seau_de_Leech), il existe
 des pavages bien plus malins encore.
 
 Le problème, c'est que ces pavages malins, il faut les stocker ou les calculer, et c'est
-exactement ce que font les dictionnaires de Vorbis (ses *codebooks*) ou la PVQ d'Opus, avec les
+exactement ce que font les dictionnaires de [Vorbis](https://fr.wikipedia.org/wiki/Vorbis) (ses [*codebooks*](https://fr.wikipedia.org/wiki/Quantification_vectorielle)) ou la [PVQ](https://en.wikipedia.org/wiki/Pyramid_vector_quantization) d'[Opus](https://en.wikipedia.org/wiki/Opus_%28audio_format%29), avec les
 conséquences que vous connaissez si vous avez lu le premier billet : de la RAM, ou une migraine.
 La TCQ, elle, en récupère environ 1 dB sur les 1,53 possibles avec 8 états, à haut débit et
 sans aucun dictionnaire. C'est là toute sa magie. À nos débits, un peu plus d'un bit par
@@ -105,22 +105,22 @@ Encore faut-il des règles de passage précises entre les deux règles graduées
 ## Le treillis : une machine à huit états
 
 « Le choix précédent décide de la règle suivante » : il faut bien une règle de transition précise, et
-c'est le **treillis** qui la donne. C'est une petite machine à états. À chaque coefficient, la
+c'est le **treillis** qui la donne. C'est une petite [machine à états](https://fr.wikipedia.org/wiki/Automate_fini). À chaque coefficient, la
 machine est dans l'un de ses 8 états ; l'état dit quelle règle graduée est permise, et le choix
 de la famille fait passer la machine dans l'état suivant. Dans MULE, depuis l'état t, on passe
 à l'état (2t + 0) ou (2t + 1), modulo 8, selon la famille choisie. Ce sont exactement les tables
-de la partie 2 de JPEG 2000 : je n'ai rien inventé.
+de la [partie 2 de JPEG 2000](https://jpeg.org/jpeg2000/) : je n'ai rien inventé.
 
 ![Figure 3 : le treillis à 8 états, déroulé sur quelques coefficients ; chaque branche est étiquetée par la famille qu'elle impose](/assets/img/mule-b2-fig3-treillis.svg)
 
-D'où ça vient ? Des modems. Au début des années 1980, Gottfried Ungerboeck a montré qu'en
+D'où ça vient ? Des modems. Au début des années 1980, Gottfried Ungerboeck [a montré](https://doi.org/10.1109/TIT.1982.1056454) qu'en
 choisissant les points émis sur une ligne téléphonique selon une machine à états de ce genre, on
-gagnait plusieurs dB de robustesse sans élargir la bande : la *modulation codée en treillis*,
+gagnait plusieurs dB de robustesse sans élargir la bande : la [*modulation codée en treillis*](https://en.wikipedia.org/wiki/Trellis_coded_modulation),
 qui a fait les beaux jours des modems téléphoniques (V.32 et V.32bis, 9 600 et 14 400 bit/s). 
-En 1990, Michael Marcellin et Thomas Fischer ont retourné l'idée : ce qui protège des points 
+En 1990, [Michael Marcellin et Thomas Fischer](https://doi.org/10.1109/26.46532) ont retourné l'idée : ce qui protège des points 
 contre le bruit d'une ligne peut aussi placer des niveaux de quantification au plus près d'un 
 signal. C'est la TCQ. Elle a fini dans JPEG 2000, puis, sous une forme cousine 
-(la *quantification dépendante*), dans le codec vidéo VVC.
+(la *quantification dépendante*), dans le codec vidéo [VVC](https://en.wikipedia.org/wiki/Versatile_Video_Coding).
 
 Le coût pour le décodeur sur le baladeur : une table de 16 entrées, une parité et un décalage par
 coefficient. Comparé à une IMDCT, c'est invisible.
@@ -132,7 +132,7 @@ décider coefficient par coefficient, parce qu'un choix excellent maintenant peu
 règle catastrophique au coefficient suivant. Et on ne peut pas essayer toutes les suites : avec
 deux familles possibles par coefficient, une bande de 64 coefficients compte 2⁶⁴ chemins.
 
-L'astuce s'appelle l'**algorithme de Viterbi**, et c'est un peu celui du routage sur un GPS *(Une autre de mes passions)*. 
+L'astuce s'appelle l'**[algorithme de Viterbi](https://fr.wikipedia.org/wiki/Algorithme_de_Viterbi)**, et c'est un peu celui du [routage](https://en.wikipedia.org/wiki/Dijkstra's_algorithm) sur un GPS *(Une autre de mes passions)*. 
 Pour trouver le plus court chemin de Paris à Marseille, le GPS n'essaie pas toutes les routes : il retient, pour chaque
 carrefour, le meilleur chemin qui y mène, et oublie les autres, puisque tout trajet qui passe
 par ce carrefour a intérêt à y arriver par le meilleur chemin. Viterbi fait la même chose avec
@@ -148,7 +148,7 @@ cherche le meilleur compromis entre erreur et bits, et c'est sur des milliers de
 gain apparaît. Ce qu'on voit bien, en revanche, c'est la règle du jeu : chaque fois que l'état est
 impair, le niveau choisi tombe entre deux graduations du scalaire.
 
-Ce qu'on minimise, c'est « erreur au carré + λ × bits » : le compromis débit-distorsion du premier
+Ce qu'on minimise, c'est « erreur au carré + λ × bits » : le compromis [débit-distorsion](https://en.wikipedia.org/wiki/Rate%E2%80%93distortion_theory) du premier
 billet, au niveau du coefficient. Et il a fallu le régler, parce que λ s'est révélé capricieux.
 Sur mon corpus de réglage :
 
@@ -167,16 +167,16 @@ de la PVQ d'Opus (le C). J'ai construit le codec avec le A, parce que c'était l
 puis j'ai branché le B et le C à sa place.
 
 Résultat sur les 30 extraits de test, à débit égal : la TCQ gagne **+0,063 d'ODG à 128 kb/s et
-+0,037 à 160**, sans un seul extrait en recul. L'écart avec Opus sur la note de base de PEAQ
-diminue d'environ un tiers. Et pour une fois, mes oreilles ont confirmé : en écoute à l'aveugle à
++0,037 à 160**, sans un seul extrait en recul. L'écart avec Opus sur la note de base de [PEAQ](https://en.wikipedia.org/wiki/Perceptual_Evaluation_of_Audio_Quality)
+diminue d'environ un tiers. Et pour une fois, mes oreilles ont confirmé : en [écoute à l'aveugle](https://fr.wikipedia.org/wiki/Test_ABX) à
 160 kb/s, sur six extraits choisis pour être difficiles *(seize fois d'affilée les mêmes
 triangles, puis seize fois les mêmes castagnettes, et rebelote pour chaque version : une
 épreuve)*, le scalaire était transparent sur cinq extraits sur six (les triangles, encore ces
 satanés triangles, étaient au seuil de détection) et la TCQ sur les six.
 
 La PVQ, elle, a perdu. Pas de beaucoup en moyenne, mais lourdement sur les sons tonals : −0,64 sur
-les triangles, −0,43 sur le glockenspiel *(une sorte de
-xylophone, en métal)*. Honnêtement, la PVQ est compliquée à appréhender : c'est de la géométrie en
+les triangles, −0,43 sur le [glockenspiel](https://fr.wikipedia.org/wiki/Glockenspiel) *(une sorte de
+[xylophone](https://fr.wikipedia.org/wiki/Xylophone), en métal)*. Honnêtement, la PVQ est compliquée à appréhender : c'est de la géométrie en
 dimension N, avec des problèmes de densité de points et de distance. Je ne sais pas pour vous,
 mais moi, j'ai du mal à visualiser les pôles d'une sphère de dimension 12. La documentation
 d'Opus est imbuvable. J'ai essayé de lire deux ou trois papiers sur le sujet, mais il faut se
@@ -222,7 +222,7 @@ Le plus gros gain de l'encodeur depuis le passage à la TCQ.
 
 J'ai évidemment essayé 48 états, parce que pourquoi pas, et parce qu'entre 32 et 64 il y avait
 peut-être un compromis. Il n'y en avait pas : 48 états font moins bien que 32 (+0,12 dB contre
-+0,17). Les bons treillis viennent des codes convolutifs des télécoms, et ils aiment les
++0,17). Les bons treillis viennent des [codes convolutifs](https://en.wikipedia.org/wiki/Convolutional_code) des télécoms, et ils aiment les
 puissances de deux. J'aurais pu m'en douter, mais c'est plus simple de le mesurer.
 
 Les coûts, maintenant. Pour le décodeur : 256 octets d'état en plus, et rien d'autre. Pour
@@ -237,7 +237,7 @@ mesure près, et l'encodeur est revenu à environ quatre fois le temps réel.
 
 Le treillis a eu droit à son petit cimetière d'idées innovantes :
 
-- **Des contextes qui connaissent l'état.** Le codeur entropique devine mieux un
+- **Des contextes qui connaissent l'état.** Le [codeur entropique](https://fr.wikipedia.org/wiki/Codage_entropique) devine mieux un
   symbole s'il sait sur quelle règle graduée on se trouve. Gain : 0,42 % de débit, sous mon seuil
   de 1 %, pour 3 Kio de RAM en plus sur le cœur B. Non.
 - **Un treillis plus riche**, dont l'état porterait aussi le type de la bande. Fausse bonne idée :
@@ -245,7 +245,7 @@ Le treillis a eu droit à son petit cimetière d'idées innovantes :
 - **La TCVQ**, la version vectorielle de la TCQ : environ 0,5 dB de plus en théorie, et un décodeur
   bien plus lourd. Pas sur mon baladeur.
 - **Un réglage automatique** de tous les paramètres autour du treillis de 64 états, par un
-  algorithme d'optimisation (CMA-ES) : +0,004 sur les extraits qui servaient à régler, rien sur
+  algorithme d'optimisation ([CMA-ES](https://fr.wikipedia.org/wiki/CMA-ES)) : +0,004 sur les extraits qui servaient à régler, rien sur
   les autres. Les réglages faits à la main étaient déjà bons.
 
 ## Pourquoi personne ne l'utilise ?
@@ -255,7 +255,7 @@ la psychoacoustique. Elle coûte presque rien au décodeur et ne demande aucun d
 pourquoi ne la trouve-t-on dans aucun codec audio grand public ?
 
 Je n'ai pas de réponse sérieuse. Peut-être les brevets, à l'époque où AAC et Vorbis ont été
-conçus. Peut-être parce que la quantification non uniforme d'AAC ou la PVQ d'Opus en récupèrent
+conçus. Peut-être parce que la quantification non uniforme d'[AAC](https://fr.wikipedia.org/wiki/Advanced_Audio_Coding) ou la PVQ d'Opus en récupèrent
 une partie autrement. Peut-être parce que personne n'a eu besoin de serrer un codec dans 30 Kio
 sur un Cortex-M3. Si vous connaissez la réponse, je suis preneur.
 
