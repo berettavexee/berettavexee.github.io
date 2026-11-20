@@ -9,7 +9,7 @@ tags: audio codec MDCT psychoacoustique MULE ECHO-MINI
 
 *Premier billet de la série « MULE, ou comment marche un codec audio moderne ».*
 
-## Tout est parti d'un baladeur à trente balles
+## Je bidouille encore mon baladeur chinois à soixante euros
 
 J'ai porté Ogg [Vorbis](https://fr.wikipedia.org/wiki/Vorbis) et Ogg [Opus](https://en.wikipedia.org/wiki/Opus_%28audio_format%29) sur l'Echo Mini de Snowsky, un petit baladeur audio. Sur le
 papier, c'était une formalité : prendre des bibliothèques qui tournent partout depuis quinze
@@ -19,7 +19,8 @@ Le premier : l'Echo Mini tourne sur un [Cortex-M3](https://fr.wikipedia.org/wiki
 Pas de `float`, ou alors émulé en logiciel, c'est-à-dire à la vitesse d'un escargot.
 Le second : le cœur dédié à l'audio, le « cœur B », n'a accès directement qu'à
 **très peu de RAM**. 128 Kio pour le code, 148 Kio pour les données. Pour tout. Le décodeur,
-ses tables, ses tampons d'entrée et de sortie.
+ses tables, ses tampons d'entrée et de sortie. Une fois le décodeur et ses tables installés, il
+ne reste pas de quoi garder ne serait-ce que 40 ms de son d'avance *(PCM)*.
 
 Vorbis, d'abord. Il embarque des [*codebooks*](https://fr.wikipedia.org/wiki/Quantification_vectorielle) (des dictionnaires de quantification envoyés
 dans l'en-tête de chaque fichier) et des tables d'IMDCT (la transformée inverse, on y
@@ -28,7 +29,7 @@ Il ne reste presque rien pour les tampons. Le portage d'origine trichait d'aille
 l'option de compilation `low_memory` de [Tremor](https://en.wikipedia.org/wiki/Tremor_%28software%29), qui dégradait la qualité de façon audible.
 
 Opus, ensuite. Pas de codebooks, mais la PVQ ([*Pyramid Vector Quantization*](https://en.wikipedia.org/wiki/Pyramid_vector_quantization)), une technique
-très astucieuse pour coder de façon compacte des vecteurs de dimension N et de longueur unité.
+infernale pour coder de façon compacte des vecteurs de dimension N et de longueur unité.
 Je vais être honnête : je n'ai pas compris grand-chose à son fonctionnement. On répartit des
 points sur une sphère de dimension N pour représenter un vecteur unitaire. Jusque-là, j'arrive à
 suivre. Puis on applique plusieurs fois le même mécanisme (*coordinate-wise power*), ce qui, au
@@ -162,8 +163,9 @@ courts de 256 pour les attaques, groupés comme dans AAC. La fenêtre est celle 
   retard. Une grande trame avec un grand recouvrement, c'est la meilleure finesse en fréquence
   pour la musique tenue.
 - 44,1 kHz natif : le [DAC](https://fr.wikipedia.org/wiki/Convertisseur_num%C3%A9rique-analogique) de l'Echo Mini tourne à 44,1 kHz, donc pas de rééchantillonnage
-  comme avec Opus. *(48 kHz, c'est la fréquence de la vidéo et de la plupart des cartes son ; le
-  CD est resté à 44,1)*
+  comme avec Opus. *(48 kHz, c'est la fréquence choisie pour se caler sur la vidéo : cela
+  donne un nombre entier d'échantillons par image, y compris à 24 images par seconde, la
+  cadence du cinéma ; le CD est resté à 44,1)*
 - Des puissances de deux : c'est ce que l'accélérateur hardware sait faire pour le AAC.
 - Une géométrie éprouvée : AAC et libvorbis tombent sur les mêmes tailles, ce n'est pas un
   hasard.
