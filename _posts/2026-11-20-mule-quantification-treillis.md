@@ -225,6 +225,15 @@ peut-être un compromis. Il n'y en avait pas : 48 états font moins bien que 32 
 +0,17). Les bons treillis viennent des [codes convolutifs](https://en.wikipedia.org/wiki/Convolutional_code) des télécoms, et ils aiment les
 puissances de deux. J'aurais pu m'en douter, mais c'est plus simple de le mesurer.
 
+Et pourquoi s'arrêter à deux règles ? Si deux règles décalées d'un demi-pas font gagner quelque
+chose, quatre règles décalées d'un quart de pas, piochées dans une grille quatre fois plus fine,
+devraient faire mieux. La question est naturelle, et Ungerboeck se l'était déjà posée pour ses
+modems : doubler l'alphabet donne l'essentiel du gain, le quadrupler presque rien de plus. Je l'ai
+quand même vérifié sur le simulateur. Résultat, à 1,25 bit par coefficient : entre +0,01 et
++0,03 dB selon le nombre d'états, soit rien du tout. Et il y a un prix caché : trois règles sur
+quatre n'ont pas de zéro, et paient le signe sur toutes les petites valeurs, qui sont justement
+la majorité des coefficients de MULE. Deux règles, c'est très bien.
+
 Les coûts, maintenant. Pour le décodeur : 256 octets d'état en plus, et rien d'autre. Pour
 l'encodeur, c'est une autre histoire : un Viterbi huit fois plus large, qui a fait tomber
 l'encodage à 1,9 fois le temps réel. L'astuce pour regagner de la vitesse : le choix de
