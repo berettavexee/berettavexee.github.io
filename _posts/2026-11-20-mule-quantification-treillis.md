@@ -305,9 +305,9 @@ Une idée de 1990, venue des modems et passée par l'image et la vidéo, a rappo
 la psychoacoustique. Elle coûte presque rien au décodeur et ne demande aucun dictionnaire. Alors
 pourquoi ne la trouve-t-on dans aucun codec audio grand public ?
 
-Je n'ai pas de réponse sérieuse. Peut-être les brevets, à l'époque où AAC et Vorbis ont été
-conçus. Peut-être parce que la quantification non uniforme d'[AAC](https://fr.wikipedia.org/wiki/Advanced_Audio_Coding) ou la PVQ d'Opus en récupèrent
-une partie autrement. Peut-être parce que personne n'a eu besoin de serrer un codec dans 30 Kio
+Je n'ai pas de réponse sérieuse. Peut-être les brevets, à l'époque où [AAC](https://fr.wikipedia.org/wiki/Advanced_Audio_Coding) et Vorbis ont été
+conçus. Peut-être parce que la PVQ d'Opus en récupère une partie autrement, en quantifiant les
+coefficients ensemble. Peut-être parce que personne n'a eu besoin de serrer un codec dans 30 Kio
 sur un Cortex-M3. Si vous connaissez la réponse, je suis preneur.
 
 Au prochain épisode : une fois quantifiés, ces index doivent encore être écrits avec le moins de
