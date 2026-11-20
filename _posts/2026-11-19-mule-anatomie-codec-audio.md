@@ -606,7 +606,7 @@ version du décodeur à tester, et un test qui se résume à comparer deux fichi
 ## Alors, ça vaut quoi ?
 
 Évidemment, la vraie question : est-ce que ça marche ? Voici MULE face aux trois codecs qu'il
-pille allègrement, sur 30 extraits tirés au hasard de ma bibliothèque et jamais utilisés pour les réglages,
+pille allègrement (et deux encodeurs pour AAC), sur 30 extraits tirés au hasard de ma bibliothèque et jamais utilisés pour les réglages,
 à débit égal. L'ODG est la note de [PEAQ](https://en.wikipedia.org/wiki/Perceptual_Evaluation_of_Audio_Quality), un modèle d'écoute normalisé : 0, on n'entend pas de
 différence avec l'original ; −1, c'est audible mais pas gênant. ViSQOL note de 1 à 5.
 
@@ -614,19 +614,28 @@ différence avec l'original ; −1, c'est audible mais pas gênant. ViSQOL note 
 |---|---|---|---|---|
 | AAC (FDK) | −0,54 | −0,21 | −0,57 / −0,27 | 4,30 |
 | Vorbis | −0,45 | −0,16 | −0,63 / −0,34 | 4,47 |
+| AAC (Apple) | −0,31 | −0,02 | −0,46 / −0,22 | 4,49 |
 | Opus | **−0,12** | **0,00** | −0,45 / −0,24 | 4,54 |
 | MULE | −0,17 | −0,01 | **−0,36 / −0,14** | **4,61** |
 
 
 L'AAC vient de [FDK-AAC](https://en.wikipedia.org/wiki/Fraunhofer_FDK_AAC), l'encodeur de Fraunhofer (celui d'Android), en AAC-LC à débit constant et réglages par défaut. Sa dernière place est en partie un choix : il coupe tout au-dessus de
-16 kHz environ, quand les trois autres montent à 20 kHz. Il met ses bits là où l'oreille d'un adulte les entend vraiment, et PEAQ et ViSQOL le lui font payer sans doute plus cher que vos
+16 kHz environ, quand Opus, Vorbis et MULE montent à 20 kHz. Il met ses bits là où l'oreille d'un adulte les entend vraiment, et PEAQ et ViSQOL le lui font payer sans doute plus cher que vos
 oreilles. Son mode à débit variable ne fait pas mieux : à débit égal, PEAQ préfère même le
-débit constant. L'encodeur AAC d'Apple, réputé meilleur, ne tourne que sous Windows et macOS *(flemme de faire tourner dans wine)*.
+débit constant.
 
-![Figure 11 : la note PEAQ en fonction du débit réel, pour MULE, Opus, Vorbis et FDK-AAC](/assets/img/mule-fig11-courbes.svg)
+L'encodeur AAC d'Apple, réputé le meilleur, ne tourne que sous Windows et macOS. J'ai fini par
+le faire tourner sous wine, avec [qaac](https://github.com/nu774/qaac) et les bibliothèques
+d'iTunes, en débit variable piloté par la qualité (TVBR). Même format, même décodeur, et un
+tout autre résultat : −0,31 à 128 kb/s contre −0,54 pour FDK, et −0,02 à 160 kb/s, au niveau
+d'Opus et de MULE. Sa bande passante s'adapte au débit et au morceau, de 16 à près de 20 kHz.
+La preuve par l'exemple que, dans un codec, tout se joue dans l'encodeur.
+
+![Figure 11 : la note PEAQ en fonction du débit réel, pour MULE, Opus, Vorbis et l'AAC de FDK et d'Apple](/assets/img/mule-fig11-courbes.svg)
 
 Soyons honnêtes : Opus reste devant sur la note de base de PEAQ. MULE passe devant sur la
-version avancée de PEAQ et sur ViSQOL, et il enterre Vorbis et FDK-AAC partout. Mais regardez les
+version avancée de PEAQ et sur ViSQOL, il enterre Vorbis et FDK-AAC partout, et il reste
+devant l'AAC d'Apple à 128 kb/s, avant que celui-ci ne le rattrape vers 160. Mais regardez les
 écarts : on se bat pour des centièmes, dans la zone où PEAQ lui-même dit « imperceptible ». Et
 en [écoute à l'aveugle](https://fr.wikipedia.org/wiki/Test_ABX) (16 essais par extrait, sur les six extraits où PEAQ voyait le plus grand
 écart), je n'ai su distinguer MULE à 128 kb/s ni de l'original, ni d'Opus. Mes oreilles sont
