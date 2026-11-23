@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "La compression vient du modèle, pas du codeur"
-date: 2026-11-24
+date: 2026-11-23
 author: "guiral Lacotte"
 language: french
 tags: audio codec rANS codage-entropique MULE ECHO-MINI
