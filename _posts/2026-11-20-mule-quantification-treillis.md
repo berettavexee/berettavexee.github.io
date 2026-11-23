@@ -38,6 +38,9 @@ regarder ses voisins, et le décodeur n'a qu'une multiplication à faire.
 
 ![Figure 1 : le quantificateur scalaire, une règle graduée au pas D ; chaque valeur est remplacée par la graduation la plus proche, et l'erreur reste entre −D/2 et +D/2](/assets/img/mule-b2-fig1-scalaire.svg)
 
+Figure 1 : le quantificateur scalaire, une règle graduée au pas D ; chaque valeur est remplacée par la graduation la plus proche, et l'erreur reste entre −D/2 et +D/2
+{: .caption}
+
 C'est simple, et c'est presque optimal. Presque. La [théorie de l'information](https://fr.wikipedia.org/wiki/Th%C3%A9orie_de_l'information) dit qu'en
 quantifiant **plusieurs nombres ensemble** plutôt qu'un par un, on peut faire mieux, et elle dit
 même de combien : à haut débit, au plus 1,53 dB de bruit en moins pour le même nombre de bits.
@@ -70,6 +73,9 @@ Chacune des deux règles a le même pas que le quantificateur scalaire : elle co
 nombre de bits. Mais ensemble, elles forment la règle fine.
 
 ![Figure 2 : les graduations au demi-pas, colorées par famille (D0, D1, D2, D3) ; au-dessus, la règle paire (D0 et D2) et la règle impaire (D1 et D3), chacune au pas D, décalées d'un demi-pas](/assets/img/mule-b2-fig2-familles.svg)
+
+Figure 2 : les graduations au demi-pas, colorées par famille (D0, D1, D2, D3) ; au-dessus, la règle paire (D0 et D2) et la règle impaire (D1 et D3), chacune au pas D, décalées d'un demi-pas
+{: .caption}
 
 Si j'ai deux règles, il me faut un bit pour dire laquelle j'utilise ? Où se cache le gain ?
 C'est toute l'astuce : **pour chaque coefficient, on n'a le droit qu'à une seule des deux règles
@@ -113,6 +119,9 @@ de la [partie 2 de JPEG 2000](https://jpeg.org/jpeg2000/) : je n'ai rien invent�
 
 ![Figure 3 : le treillis à 8 états, déroulé sur quelques coefficients ; chaque branche est étiquetée par la famille qu'elle impose](/assets/img/mule-b2-fig3-treillis.svg)
 
+Figure 3 : le treillis à 8 états, déroulé sur quelques coefficients ; chaque branche est étiquetée par la famille qu'elle impose
+{: .caption}
+
 D'où ça vient ? Des modems. Au début des années 1980, Gottfried Ungerboeck [a montré](https://doi.org/10.1109/TIT.1982.1056454) qu'en
 choisissant les points émis sur une ligne téléphonique selon une machine à états de ce genre, on
 gagnait plusieurs dB de robustesse sans élargir la bande : la [*modulation codée en treillis*](https://en.wikipedia.org/wiki/Trellis_coded_modulation),
@@ -142,6 +151,9 @@ et remonte le chemin. Huit chemins à suivre au lieu de 2⁶⁴ : l'encodeur tou
 moins vite qu'avec le scalaire.
 
 ![Figure 4 : une vraie bande de 16 coefficients d'une trompette (EBU SQAM), codée avec le treillis à 8 états de la v2 ; croix : les valeurs à quantifier ; carrés orange : l'arrondi scalaire ; ronds bleus : les niveaux choisis par la TCQ ; en dessous, l'état du treillis avant chaque coefficient : un état impair impose un niveau impair, entre deux graduations du scalaire](/assets/img/mule-b2-fig4-viterbi.svg)
+
+Figure 4 : une vraie bande de 16 coefficients d'une trompette (EBU SQAM), codée avec le treillis à 8 états de la v2 ; croix : les valeurs à quantifier ; carrés orange : l'arrondi scalaire ; ronds bleus : les niveaux choisis par la TCQ ; en dessous, l'état du treillis avant chaque coefficient : un état impair impose un niveau impair, entre deux graduations du scalaire
+{: .caption}
 
 Sur cette bande, prise au hasard, la TCQ ne fait pas une erreur plus petite que l'arrondi : elle
 cherche le meilleur compromis entre erreur et bits, et c'est sur des milliers de bandes que le
@@ -192,7 +204,13 @@ près d'un tiers du flux sur l'extrait d'ABBA du premier billet (figure 9).
 
 ![Rappel de la figure 3 : le treillis à 8 états ; en gras, le chemin des premiers coefficients, celui que suit la figure 5](/assets/img/mule-b2-fig3-treillis.svg)
 
+Rappel de la figure 3 : le treillis à 8 états ; en gras, le chemin des premiers coefficients, celui que suit la figure 5
+{: .caption}
+
 ![Figure 5 : ce que le décodeur lit pour les quatre premiers coefficients de la figure 4 ; l'état impose la règle, le fichier ne contient qu'un index et un signe, et la famille de la valeur lue donne l'état suivant](/assets/img/mule-b2-fig5-fichier.svg)
+
+Figure 5 : ce que le décodeur lit pour les quatre premiers coefficients de la figure 4 ; l'état impose la règle, le fichier ne contient qu'un index et un signe, et la famille de la valeur lue donne l'état suivant
+{: .caption}
 
 Le choix de la branche est donc contenu dans la valeur elle-même : choisir −D plutôt que 0 ou −2D,
 c'est à la fois choisir une valeur et choisir un chemin. Et cette valeur, il faut l'envoyer de
@@ -229,6 +247,9 @@ plus, elle perdait face à la TCQ.
 
 ![Figure 6 : la note PEAQ à 128 et 160 kb/s du quantificateur scalaire, de la TCQ et de la PVQ, face à Opus et Vorbis, sur le corpus de réglage (66 extraits), le seul où les trois quantificateurs ont été mesurés ensemble](/assets/img/mule-b2-fig6-v2.svg)
 
+Figure 6 : la note PEAQ à 128 et 160 kb/s du quantificateur scalaire, de la TCQ et de la PVQ, face à Opus et Vorbis, sur le corpus de réglage (66 extraits), le seul où les trois quantificateurs ont été mesurés ensemble
+{: .caption}
+
 La TCQ est devenue le seul quantificateur du format v2. 
 
 ## La v3 : plus d'états, et un seul Viterbi pour toute la trame
@@ -257,12 +278,18 @@ chemins entre lesquels choisir. Le simulateur donnait +0,17 dB à 32 états, +0,
 
 ![Figure 7 : le gain du treillis sur le quantificateur scalaire selon le nombre d'états, avec redémarrage à chaque bande et en chaîne sur la trame (simulateur, 1,25 bit par coefficient)](/assets/img/mule-b2-fig7-simulateur.svg)
 
+Figure 7 : le gain du treillis sur le quantificateur scalaire selon le nombre d'états, avec redémarrage à chaque bande et en chaîne sur la trame (simulateur, 1,25 bit par coefficient)
+{: .caption}
+
 Dans le codec, sur le corpus de réglage, le gain monte avec le nombre d'états, de moins en moins
 vite : +0,015 d'ODG à 8 états en chaîne, +0,026 à 16, +0,037 à 32, +0,040 à 64. Confirmé sur les
 extraits de test : **+0,036 à 128 kb/s** pour le format v3, toutes les mesures sont concordantes. 
 Le plus gros gain de l'encodeur depuis le passage à la TCQ.
 
 ![Figure 8 : le gain en ODG dans le codec selon le nombre d'états du treillis en chaîne](/assets/img/mule-b2-fig8-etats.svg)
+
+Figure 8 : le gain en ODG dans le codec selon le nombre d'états du treillis en chaîne
+{: .caption}
 
 J'ai évidemment essayé 48 états, parce que pourquoi pas, et parce qu'entre 32 et 64 il y avait
 peut-être un compromis. Il n'y en avait pas : 48 états font moins bien que 32 (+0,12 dB contre

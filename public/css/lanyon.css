@@ -577,3 +577,13 @@ a.pagination-item:hover {
 .layout-reverse.sidebar-overlay #sidebar-checkbox:checked ~ .sidebar {
   box-shadow: -.25rem 0 .5rem rgba(0,0,0,.1);
 }
+
+/* Figure captions (the paragraph after each figure, {: .caption} in the posts) */
+.post p.caption {
+  margin-top: -0.5rem;
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: #717171;
+  text-align: center;
+}

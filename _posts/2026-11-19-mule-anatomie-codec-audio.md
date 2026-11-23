@@ -108,6 +108,9 @@ CELT seul suffit à Opus.
 
 ![Figure 1 : l'encodeur et le décodeur de MULE, chaque brique colorée selon le codec dont elle vient](/assets/img/mule-fig1-pipeline.svg)
 
+Figure 1 : l'encodeur et le décodeur de MULE, chaque brique colorée selon le codec dont elle vient
+{: .caption}
+
 La figure 1 montre la chaîne complète. Les couleurs disent d'où vient chaque brique. Rien n'y
 est vraiment inventé : MULE, c'est un assemblage de bonnes idées piquées à droite et à gauche,
 plus une ou deux à moi qui ne marchaient pas (j'y reviendrai dans le cinquième billet, qui
@@ -136,7 +139,13 @@ C'est le **[pré-écho](https://en.wikipedia.org/wiki/Pre-echo)**, le principal 
 
 ![Figure 2 : chevauchement des fenêtres de Vorbis ; la somme de leurs carrés vaut 1 partout](/assets/img/mule-fig2-fenetres.svg)
 
+Figure 2 : chevauchement des fenêtres de Vorbis ; la somme de leurs carrés vaut 1 partout
+{: .caption}
+
 ![Figure 3 : deux notes voisines et un clic, vus avec une fenêtre longue et avec des fenêtres courtes : finesse en fréquence contre finesse en temps](/assets/img/mule-fig3-temps-frequence.svg)
+
+Figure 3 : deux notes voisines et un clic, vus avec une fenêtre longue et avec des fenêtres courtes : finesse en fréquence contre finesse en temps
+{: .caption}
 
 ### Ce que font les autres
 
@@ -178,6 +187,9 @@ nettes), mesure son énergie par paquets de 128 échantillons, et crie « attaqu
 saute de 10 dB. Simple, mais plus efficace que tous les autres systèmes testés.
 
 ![Figure 4 : une attaque de castagnettes (EBU SQAM) avec un bruit de codage simulé : en fenêtres longues, le bruit déborde avant l'attaque ; en blocs courts, il reste collé à l'attaque](/assets/img/mule-fig4-blocs-courts.svg)
+
+Figure 4 : une attaque de castagnettes (EBU SQAM) avec un bruit de codage simulé : en fenêtres longues, le bruit déborde avant l'attaque ; en blocs courts, il reste collé à l'attaque
+{: .caption}
 
 J'ai passé un temps déraisonnable à essayer d'améliorer ce point (parce que les outils
 d'évaluation psychoacoustique pèsent lourdement les attaques) : modulation du bruit, détecteurs
@@ -236,6 +248,9 @@ coefficients, un par « raie » de fréquence, espacées de 21,5 Hz.
 
 ![Figure 5 : un bloc de 2 048 échantillons d'une note synthétique à 220 Hz, et ses 64 premières raies MDCT : un pic par harmonique ; en gris, les groupes de 8 raies qui forment les bandes graves de MULE](/assets/img/mule-fig5-raies.svg)
 
+Figure 5 : un bloc de 2 048 échantillons d'une note synthétique à 220 Hz, et ses 64 premières raies MDCT : un pic par harmonique ; en gris, les groupes de 8 raies qui forment les bandes graves de MULE
+{: .caption}
+
 Revenons à nos échantillons 2 048 en entrée, 1 024 en sortie. On perd la moitié de l'information
 à chaque bloc. Le miracle, c'est que cette perte est rattrapée par le recouvrement : les
 erreurs qu'introduit un bloc sont exactement annulées par celles, opposées, du bloc voisin.
@@ -261,6 +276,9 @@ de CELT : à peu près une bande par Bark dans les médiums, et assez peu de ban
 informations (énergie, allocation) coûtent peu.
 
 ![Figure 6 : le spectre MDCT d'une trame de trompette (EBU SQAM), avec les 22 bandes de MULE](/assets/img/mule-fig6-bandes.svg)
+
+Figure 6 : le spectre MDCT d'une trame de trompette (EBU SQAM), avec les 22 bandes de MULE
+{: .caption}
 
 > **Encadré : pourquoi les bandes d'Opus, et pas celles de Vorbis ?**
 >
@@ -412,6 +430,9 @@ empiriques, et ce sont elles qui ont fait la différence :
 
 ![Figure 7 : pour une trame, le spectre du signal, le seuil de masquage calculé par MULE, et le bruit de codage après quantification, qui reste juste en dessous](/assets/img/mule-fig7-masque.svg)
 
+Figure 7 : pour une trame, le spectre du signal, le seuil de masquage calculé par MULE, et le bruit de codage après quantification, qui reste juste en dessous
+{: .caption}
+
 La figure 7 résume tout le billet. Si vous ne deviez en retenir qu'une phrase, ce serait
 celle-ci : **l'encodeur ne cherche pas à reproduire le signal, il cherche à cacher son
 erreur.** Le bruit de codage est là, partout, mais il épouse la forme du masque, toujours un peu
@@ -432,6 +453,9 @@ l'erreur moyenne vaut à peu près D²/12. Il faut donc choisir un pas par bande
 comment le budget se répartit d'une trame à l'autre.
 
 ![Figure 8 : le même signal arrondi avec un pas grossier et avec un pas fin : l'erreur reste entre −D/2 et +D/2](/assets/img/mule-fig8-quantification.svg)
+
+Figure 8 : le même signal arrondi avec un pas grossier et avec un pas fin : l'erreur reste entre −D/2 et +D/2
+{: .caption}
 
 ### Ce que font les autres
 
@@ -486,6 +510,9 @@ boulot)*.
 
 ![Figure 9 : où va le budget : le débit de chaque bande et la répartition du flux, sur un extrait d'ABBA (EBU SQAM)](/assets/img/mule-fig9-bits.svg)
 
+Figure 9 : où va le budget : le débit de chaque bande et la répartition du flux, sur un extrait d'ABBA (EBU SQAM)
+{: .caption}
+
 ## La stéréo : deux canaux pour le prix d'un et demi
 
 ### Le besoin
@@ -523,6 +550,9 @@ L'angle d'Opus découle de sa construction énergie/forme : comme M et S ont cha
 longueur 1, il faut bien dire comment l'énergie se partage entre eux.
 
 ![Figure 10 : le choix stéréo de l'encodeur, bande par bande et trame par trame, sur le même extrait d'ABBA (en orange : les bandes codées en M/S)](/assets/img/mule-fig10-stereo.svg)
+
+Figure 10 : le choix stéréo de l'encodeur, bande par bande et trame par trame, sur le même extrait d'ABBA (en orange : les bandes codées en M/S)
+{: .caption}
 
 ## Mettre en boîte : codage entropique et conteneur
 
@@ -632,6 +662,9 @@ d'Opus et de MULE. Sa bande passante s'adapte au débit et au morceau, de 16 à 
 La preuve par l'exemple que, dans un codec, tout se joue dans l'encodeur.
 
 ![Figure 11 : la note PEAQ en fonction du débit réel, pour MULE, Opus, Vorbis et l'AAC de FDK et d'Apple](/assets/img/mule-fig11-courbes.svg)
+
+Figure 11 : la note PEAQ en fonction du débit réel, pour MULE, Opus, Vorbis et l'AAC de FDK et d'Apple
+{: .caption}
 
 Soyons honnêtes : Opus reste devant sur la note de base de PEAQ. MULE passe devant sur la
 version avancée de PEAQ et sur ViSQOL, il enterre Vorbis et FDK-AAC partout, et il reste
