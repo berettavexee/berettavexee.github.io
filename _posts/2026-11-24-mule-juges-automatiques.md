@@ -174,6 +174,11 @@ L'hypothèse qui reste : dans ces régions, MULE code peu d'impulsions (un tiers
 
 Dernière anecdote de cette plongée : sur un autre extrait perdant, un concerto de Beethoven, la différence entre les deux codecs se résumait au niveau du bruit qu'ils mettent à la place du souffle de l'enregistrement, au-dessus de 12 kHz. Dans ce souffle, une raie fine, à **15 625 Hz** pile. C'est la fréquence de balayage des lignes d'un téléviseur cathodique au standard européen : il y avait probablement un téléviseur ou un moniteur allumé près des micros. Les juges mesurent tout, y compris l'écran du preneur de son.
 
+![Figure 9 : le spectrogramme de l'original du concerto de Beethoven et son spectre moyen : au-dessus de 12 kHz, il ne reste que le souffle de l'enregistrement, traversé d'une raie fine et continue à 15 625 Hz, qui dépasse nettement du souffle dans le spectre moyen](/assets/img/mule-b4-fig9-beethoven-raie.png)
+
+Figure 9 : le spectrogramme de l'original du concerto de Beethoven et son spectre moyen : au-dessus de 12 kHz, il ne reste que le souffle de l'enregistrement, traversé d'une raie fine et continue à 15 625 Hz, qui dépasse nettement du souffle dans le spectre moyen
+{: .caption}
+
 ## Conclusion : des juges, pas des oracles
 
 Les juges automatiques sont indispensables pour régler un codec, et dangereux pour prendre des décisions. Ils notent ce qu'ils savent mesurer, pas forcément ce qu'on entend. Ils se contredisent. Ils se font abuser par le premier optimiseur venu. Et on tombe vite dans le surapprentissage d'un modèle ou d'un codec particulier.
