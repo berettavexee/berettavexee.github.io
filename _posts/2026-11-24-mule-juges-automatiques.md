@@ -92,9 +92,14 @@ Revenons à la campagne d'optimisation automatique du début. L'algorithme s'app
 
 Sauf qu'un réglage de l'encodeur change aussi le débit. Pour comparer à débit égal, j'encodais chaque candidat à deux réglages de qualité fixes, puis j'[interpolais](https://fr.wikipedia.org/wiki/Interpolation_num%C3%A9rique) la note à 128 kb/s. Les candidats gourmands, ceux qui dépensaient plus de bits, dépassaient 128 kb/s à mes **deux** points de mesure. La note « à 128 » n'était plus interpolée, mais **[extrapolée](https://fr.wikipedia.org/wiki/Extrapolation_(math%C3%A9matiques))**. Et comme la courbe qualité-débit est [concave](https://fr.wikipedia.org/wiki/Fonction_concave), l'extrapolation surestimait la note.
 
-![Figure 4 : à gauche, le premier essai : le gain annoncé par CMA-ES suit le débit du candidat, et tous les « gains » au-delà de 128 kb/s sont extrapolés ; à droite, le second essai, où 128 kb/s est toujours encadré : plus aucun candidat ne bat le réglage de départ](/assets/img/mule-b4-fig4-cmaes.svg)
+![Figure 4 : pourquoi l'extrapolation triche : sur une courbe qualité-débit concave, la droite tirée par deux mesures toutes deux au-delà de 128 kb/s, prolongée jusqu'à 128, passe au-dessus de la vraie courbe et annonce une note trop haute ; avec deux mesures de part et d'autre de 128 kb/s, l'erreur devient négligeable](/assets/img/mule-b4-fig11-extrapolation.svg)
 
-Figure 4 : à gauche, le premier essai : le gain annoncé par CMA-ES suit le débit du candidat, et tous les « gains » au-delà de 128 kb/s sont extrapolés ; à droite, le second essai, où 128 kb/s est toujours encadré : plus aucun candidat ne bat le réglage de départ
+Figure 4 : pourquoi l'extrapolation triche : sur une courbe qualité-débit concave, la droite tirée par deux mesures toutes deux au-delà de 128 kb/s, prolongée jusqu'à 128, passe au-dessus de la vraie courbe et annonce une note trop haute ; avec deux mesures de part et d'autre de 128 kb/s, l'erreur devient négligeable
+{: .caption}
+
+![Figure 5 : à gauche, le premier essai : le gain annoncé par CMA-ES suit le débit du candidat, et tous les « gains » au-delà de 128 kb/s sont extrapolés ; à droite, le second essai, où 128 kb/s est toujours encadré : plus aucun candidat ne bat le réglage de départ](/assets/img/mule-b4-fig4-cmaes.svg)
+
+Figure 5 : à gauche, le premier essai : le gain annoncé par CMA-ES suit le débit du candidat, et tous les « gains » au-delà de 128 kb/s sont extrapolés ; à droite, le second essai, où 128 kb/s est toujours encadré : plus aucun candidat ne bat le réglage de départ
 {: .caption}
 
 La figure est cruelle. À gauche, le gain annoncé suit presque parfaitement le débit du candidat ([corrélation](https://fr.wikipedia.org/wiki/Corr%C3%A9lation_(statistiques)) de 0,8). Tous les candidats « gagnants » sont à droite de la ligne des 128 kb/s. CMA-ES n'avait pas trouvé de meilleur réglage : il avait trouvé que dépenser plus de bits faisait monter la note, grâce à l'erreur d'extrapolation.
@@ -124,12 +129,19 @@ Et le juge le moins fiable reste parfois l'auteur. Pendant plusieurs jours, mes 
 
 Quand les juges ne sont pas d'accord, ou quand je veux savoir si un écart s'entend, je fais un test **ABX**. Le programme (squishyball) me fait écouter A, B, puis X, qui est l'un des deux, tiré au hasard. Je dois dire lequel. Seize essais par série ; il faut au moins **12 bonnes réponses sur 16** pour que le résultat ait moins de 5 % de chances d'être dû au hasard. En tirant à pile ou face, on tourne autour de 8.
 
-![Figure 5 : les scores ABX de trois séries : MULE à 128 kb/s contre l'original, MULE contre Opus au même débit, et deux réglages de MULE entre eux ; aucun extrait n'atteint le seuil de 12/16](/assets/img/mule-b4-fig5-abx.svg)
+![Figure 6 : les scores ABX de trois séries : MULE à 128 kb/s contre l'original, MULE contre Opus au même débit, et deux réglages de MULE entre eux ; aucun extrait n'atteint le seuil de 12/16](/assets/img/mule-b4-fig5-abx.svg)
 
-Figure 5 : les scores ABX de trois séries : MULE à 128 kb/s contre l'original, MULE contre Opus au même débit, et deux réglages de MULE entre eux ; aucun extrait n'atteint le seuil de 12/16
+Figure 6 : les scores ABX de trois séries : MULE à 128 kb/s contre l'original, MULE contre Opus au même débit, et deux réglages de MULE entre eux ; aucun extrait n'atteint le seuil de 12/16
 {: .caption}
 
 J'ai pris les six extraits où PEAQ voyait le plus grand écart entre MULE et Opus. Contre l'original, MULE à 128 kb/s : je n'ai rien entendu, au mieux 10/16 sur [Wolfmother](https://fr.wikipedia.org/wiki/Wolfmother). MULE contre Opus au même débit : rien, au mieux 11/16, toujours Wolfmother. L'écart que PEAQ mesurait, environ 0,05 d'ODG, ne s'entend pas, du moins pas par moi.
+
+![Figure 7 : les scores qu'on obtient en répondant au hasard, sur 16 essais (loi binomiale) : 12/16 ou plus n'arrive que 3,8 % du temps ; mes 18 séries réelles tombent toutes dans la bosse du hasard, entre 5 et 11](/assets/img/mule-b4-fig12-binomiale.svg)
+
+Figure 7 : les scores qu'on obtient en répondant au hasard, sur 16 essais (loi binomiale) : 12/16 ou plus n'arrive que 3,8 % du temps ; mes 18 séries réelles tombent toutes dans la bosse du hasard, entre 5 et 11
+{: .caption}
+
+Mes 18 séries ressemblent exactement à ce que donnerait une pièce de monnaie : une bosse autour de 8, aucun score au-delà de 11. Ce n'est pas la preuve que la différence est inaudible pour tout le monde, seulement que je ne l'entends pas.
 
 J'ai régulièrement fait des tests ABX sur les morceaux qui obtenaient les plus mauvaises notes, pour identifier les points faibles de MULE. Cela m'a permis de repérer quelques anomalies, comme un live de [Joy Division](https://fr.wikipedia.org/wiki/Joy_Division), présent dans cette série de morceaux tirés au hasard : c'était l'un des pires extraits de MULE face à Opus selon PEAQ, et c'est le pire de toute la campagne de 300 morceaux face à Opus. C'est un enregistrement live de 1980, sur [bande magnétique](https://fr.wikipedia.org/wiki/Bande_magn%C3%A9tique), saturé jusqu'à la moelle. En ABX : 8/16 contre l'original, 8/16 contre Opus, le hasard parfait. Les juges s'acharnent sur un morceau dont la source est déjà abîmée, et l'optimiser n'aurait rien apporté au reste du corpus.
 
@@ -139,9 +151,9 @@ Ce que ces écoutes disent, au fond : à 128 kb/s, MULE, Opus et l'AAC d'Apple s
 
 Ce qui fait la qualité d'un codec, ce n'est pas uniquement son taux de compression, mais la prévisibilité du résultat. Personne ne veut d'un codec excellent en moyenne, mais catastrophique sur un morceau sur quatre.
 
-![Figure 6 : la distance Zimtohrli de chacun des 300 morceaux, pour MULE, Opus et l'AAC d'Apple à 96, 128 et 160 kb/s ; à 128 kb/s, la médiane de MULE est 2,7, celle d'Opus 3,3 et celle de l'AAC 4,2, mais chaque codec s'étale de moins de 1 à plus de 5, et les nuages se recouvrent largement](/assets/img/mule-b4-fig7-repartition.svg)
+![Figure 8 : la distance Zimtohrli de chacun des 300 morceaux, pour MULE, Opus et l'AAC d'Apple à 96, 128 et 160 kb/s ; à 128 kb/s, la médiane de MULE est 2,7, celle d'Opus 3,3 et celle de l'AAC 4,2, mais chaque codec s'étale de moins de 1 à plus de 5, et les nuages se recouvrent largement](/assets/img/mule-b4-fig7-repartition.svg)
 
-Figure 6 : la distance Zimtohrli de chacun des 300 morceaux, pour MULE, Opus et l'AAC d'Apple à 96, 128 et 160 kb/s ; à 128 kb/s, la médiane de MULE est 2,7, celle d'Opus 3,3 et celle de l'AAC 4,2, mais chaque codec s'étale de moins de 1 à plus de 5, et les nuages se recouvrent largement
+Figure 8 : la distance Zimtohrli de chacun des 300 morceaux, pour MULE, Opus et l'AAC d'Apple à 96, 128 et 160 kb/s ; à 128 kb/s, la médiane de MULE est 2,7, celle d'Opus 3,3 et celle de l'AAC 4,2, mais chaque codec s'étale de moins de 1 à plus de 5, et les nuages se recouvrent largement
 {: .caption}
 
 Un codec n'a pas *une* qualité. Comme ces distributions sont loin d'être des gaussiennes, l'écart type ne veut pas dire grand-chose ; on mesure plutôt l'étendue entre le 5e et le 95e [centile](https://fr.wikipedia.org/wiki/Centile) (P5–P95), qui contient 90 % des morceaux. À 128 kb/s, elle vaut 2,2 pour MULE (de 1,3 à 3,5), 2,8 pour Opus (de 1,7 à 4,5) et 3,4 pour l'AAC (de 2,4 à 5,9). Les [médianes](https://fr.wikipedia.org/wiki/M%C3%A9diane_(statistiques)) (2,7 pour MULE, 3,3 pour Opus, 4,2 pour l'AAC) sont moins éloignées. L'écart entre deux morceaux d'un même codec dépasse largement l'écart entre la médianne de deux codecs.
@@ -152,21 +164,28 @@ Une moyenne sur 300 morceaux cache une réalité plus complexe. La seule façon 
 
 Parmi les défaites de MULE face à Opus, il y a l'*Ode pour l'anniversaire de la reine Marie* de [Purcell](https://fr.wikipedia.org/wiki/Henry_Purcell), du chant choral avec un ensemble [baroque](https://fr.wikipedia.org/wiki/Musique_baroque). Pas de défaut d'enregistrement, contrairement à d'autres. Mais une défaite à tous les débits selon Zimtohrli, alors que PEAQ avancé et le NMR préfèrent MULE. Je ne peux pas vous faire écouter cet extrait, qui est sous droits, mais voici ses spectrogrammes.
 
-![Figure 7 : les spectrogrammes de l'ode de Purcell, l'original en haut, MULE à 96 kb/s au milieu, Opus à 96 kb/s en bas, sur la même échelle de niveau ; au-dessus de 5 kHz, la texture de MULE est plus lisse et plus floue que celle de l'original ; Opus garde mieux le grain, mais laisse par moments des trous noirs entre 12 et 16 kHz](/assets/img/mule-b4-fig8-purcell-spectro.png)
+![Figure 9 : les spectrogrammes de l'ode de Purcell, l'original en haut, MULE à 96 kb/s au milieu, Opus à 96 kb/s en bas, sur la même échelle de niveau ; au-dessus de 5 kHz, la texture de MULE est plus lisse et plus floue que celle de l'original ; Opus garde mieux le grain, mais laisse par moments des trous noirs entre 12 et 16 kHz](/assets/img/mule-b4-fig8-purcell-spectro.png)
 
-Figure 7 : les spectrogrammes de l'ode de Purcell, l'original en haut, MULE à 96 kb/s au milieu, Opus à 96 kb/s en bas, sur la même échelle de niveau ; au-dessus de 5 kHz, la texture de MULE est plus lisse et plus floue que celle de l'original ; Opus garde mieux le grain, mais laisse par moments des trous noirs entre 12 et 16 kHz
+Figure 9 : les spectrogrammes de l'ode de Purcell, l'original en haut, MULE à 96 kb/s au milieu, Opus à 96 kb/s en bas, sur la même échelle de niveau ; au-dessus de 5 kHz, la texture de MULE est plus lisse et plus floue que celle de l'original ; Opus garde mieux le grain, mais laisse par moments des trous noirs entre 12 et 16 kHz
 {: .caption}
 
 Rien ne saute aux yeux, et c'est bien le problème : les deux codecs gardent l'essentiel. Il faut regarder le haut du spectre. Au-dessus de 5 kHz, l'original a un grain fin, fait de traits verticaux et d'harmoniques ; chez MULE, cette zone devient une brume plus uniforme. Opus garde mieux ce grain, au prix de trous francs, entre 12 et 16 kHz, où il n'a rien reconstruit. Zimtohrli préfère pourtant nettement Opus : il semble pardonner un trou bref plus facilement qu'une texture lissée partout. (Opus dépense ici un peu plus : 97,9 kb/s contre 92,3 pour MULE.)
 
 Le même phénomène se voit sur le [quatuor à cordes](https://fr.wikipedia.org/wiki/Quatuor_%C3%A0_cordes) de la collection [EBU](https://fr.wikipedia.org/wiki/Union_europ%C3%A9enne_de_radio-t%C3%A9l%C3%A9vision) SQAM, au même débit pour les deux codecs.
 
-![Figure 8 : en haut, la distance Zimtohrli seconde par seconde sur le quatuor à cordes de l'EBU, MULE et Opus au même débit ; en bas, sa décomposition par région de fréquence : la perte de MULE est concentrée entre 2,8 et 6 kHz et entre 10 et 15 kHz, et c'est presque uniquement de la structure, pas de l'intensité](/assets/img/mule-b4-fig6-secondes.svg)
+![Figure 10 : en haut, la distance Zimtohrli seconde par seconde sur le quatuor à cordes de l'EBU, MULE et Opus au même débit ; en bas, sa décomposition par région de fréquence : la perte de MULE est concentrée entre 2,8 et 6 kHz et entre 10 et 15 kHz, et c'est presque uniquement de la structure, pas de l'intensité](/assets/img/mule-b4-fig6-secondes.svg)
 
-Figure 8 : en haut, la distance Zimtohrli seconde par seconde sur le quatuor à cordes de l'EBU, MULE et Opus au même débit ; en bas, sa décomposition par région de fréquence : la perte de MULE est concentrée entre 2,8 et 6 kHz et entre 10 et 15 kHz, et c'est presque uniquement de la structure, pas de l'intensité
+Figure 10 : en haut, la distance Zimtohrli seconde par seconde sur le quatuor à cordes de l'EBU, MULE et Opus au même débit ; en bas, sa décomposition par région de fréquence : la perte de MULE est concentrée entre 2,8 et 6 kHz et entre 10 et 15 kHz, et c'est presque uniquement de la structure, pas de l'intensité
 {: .caption}
 
 En haut, Zimtohrli seconde par seconde. Sur le quatuor, MULE est derrière sur 14 fenêtres sur 23 ; sur Purcell, c'était 58 sur 59. Ce n'est donc pas un accident localisé, mais un défaut d'encodage. En bas, la décomposition par région du quatuor : MULE fait mieux qu'Opus sous 2,8 kHz, mais perd entre 2,8 et 6 kHz et entre 10 et 15 kHz, les mêmes régions que sur Purcell. Et la perte est presque entièrement dans la **structure** : la part d'intensité est si petite qu'elle disparaît sur la figure. Autrement dit, MULE met la bonne *quantité* de bruit, mais pas avec la bonne *texture*.
+
+![Figure 11 : la perte de structure mesurée par Zimtohrli sur le quatuor, case par case dans le temps et en fréquence, pour MULE et pour Opus au même débit, puis leur différence : les taches rouges, où MULE est pire, s'alignent entre 3 et 6 kHz et entre 10 et 15 kHz ; Opus perd surtout autour de 100 Hz](/assets/img/mule-b4-fig10-carte.png)
+
+Figure 11 : la perte de structure mesurée par Zimtohrli sur le quatuor, case par case dans le temps et en fréquence, pour MULE et pour Opus au même débit, puis leur différence : les taches rouges, où MULE est pire, s'alignent entre 3 et 6 kHz et entre 10 et 15 kHz ; Opus perd surtout autour de 100 Hz
+{: .caption}
+
+La carte rend le diagnostic visible : la perte de MULE n'est pas un accident sur quelques notes, mais deux bandes de taches rouges qui courent tout le long de l'extrait, aux fréquences où il remplit avec du bruit plat. Opus a aussi ses points faibles, en bleu, surtout dans le grave.
 
 Deux fausses pistes d'abord. Certaines bandes, au bord du masque, basculaient d'une trame à l'autre entre « codée » et « remplie de bruit » ; une hystérésis a fait passer ce papillotement de 21 à 8 % des trames sur Purcell, sans effet sur la note. Faire varier le niveau du bruit de remplissage n'a rien donné non plus.
 
@@ -174,9 +193,9 @@ L'hypothèse qui reste : dans ces régions, MULE code peu d'impulsions (un tiers
 
 Dernière anecdote de cette plongée : sur un autre extrait perdant, un concerto de [Beethoven](https://fr.wikipedia.org/wiki/Ludwig_van_Beethoven), la différence entre les deux codecs se résumait au niveau du bruit qu'ils mettent à la place du souffle de l'enregistrement, au-dessus de 12 kHz. Dans ce souffle, une raie fine, à **15 625 Hz** pile. C'est la fréquence de balayage des lignes d'un téléviseur [cathodique](https://fr.wikipedia.org/wiki/Tube_cathodique) au standard européen ([PAL](https://fr.wikipedia.org/wiki/Phase_Alternating_Line)) : il y avait probablement un téléviseur ou un moniteur allumé près des micros. Les juges mesurent tout, y compris l'écran du preneur de son.
 
-![Figure 9 : le spectrogramme de l'original du concerto de Beethoven et son spectre moyen : au-dessus de 12 kHz, il ne reste que le souffle de l'enregistrement, traversé d'une raie fine et continue à 15 625 Hz, qui dépasse nettement du souffle dans le spectre moyen](/assets/img/mule-b4-fig9-beethoven-raie.png)
+![Figure 12 : le spectrogramme de l'original du concerto de Beethoven et son spectre moyen : au-dessus de 12 kHz, il ne reste que le souffle de l'enregistrement, traversé d'une raie fine et continue à 15 625 Hz, qui dépasse nettement du souffle dans le spectre moyen](/assets/img/mule-b4-fig9-beethoven-raie.png)
 
-Figure 9 : le spectrogramme de l'original du concerto de Beethoven et son spectre moyen : au-dessus de 12 kHz, il ne reste que le souffle de l'enregistrement, traversé d'une raie fine et continue à 15 625 Hz, qui dépasse nettement du souffle dans le spectre moyen
+Figure 12 : le spectrogramme de l'original du concerto de Beethoven et son spectre moyen : au-dessus de 12 kHz, il ne reste que le souffle de l'enregistrement, traversé d'une raie fine et continue à 15 625 Hz, qui dépasse nettement du souffle dans le spectre moyen
 {: .caption}
 
 ## Conclusion : des juges, pas des oracles
